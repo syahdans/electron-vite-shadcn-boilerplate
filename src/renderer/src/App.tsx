@@ -7,6 +7,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@renderer/components/ui/breadcrumb'
+import { Button } from '@renderer/components/ui/button'
 import { Separator } from '@renderer/components/ui/separator'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@renderer/components/ui/sidebar'
 
@@ -34,11 +35,22 @@ function App() {
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
+            <div className="bg-muted/50 aspect-video rounded-xl flex items-center justify-center">
+              <Button variant="default" size="lg">
+                Go to Settings
+              </Button>
+            </div>
+            <div className="bg-muted/50 aspect-video rounded-xl flex items-center justify-center">
+              <Button variant="destructive" size="lg">
+                Go to Employee
+              </Button>
+            </div>
+            <div className="bg-muted/50 aspect-video rounded-xl flex items-center justify-center">
+              <Button variant="outline" size="lg">
+                Go to Other
+              </Button>
+            </div>
           </div>
-          <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
         </div>
       </SidebarInset>
     </SidebarProvider>
