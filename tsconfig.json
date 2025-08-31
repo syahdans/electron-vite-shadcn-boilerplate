@@ -8,5 +8,6 @@
     "paths": {
       "@/*": ["./src/renderer/src/*"]
     }
-  }
+  },
+  "moduleResolution": "bundler",
 }
