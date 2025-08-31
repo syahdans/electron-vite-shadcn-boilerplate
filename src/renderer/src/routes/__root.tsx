@@ -5,6 +5,7 @@ import Dashsboard from '@renderer/pages/Dashsboard'
 import Settings from '@renderer/pages/Settings'
 import Employee from '@renderer/pages/Employee'
 import Layouts from '@renderer/components/Layouts'
+import AppBanner from '@renderer/components/AppBanner'
 
 export const Route = createRootRoute({
   component: () => <Layouts />
@@ -13,8 +14,9 @@ export const Route = createRootRoute({
 const appRoute = createRoute({
   getParentRoute: () => Route,
   path: '/',
-  component: () => <div>HR x Talenta App v1.0.0</div>
+  component: () => <AppBanner />
 })
+
 const dashboardRoute = createRoute({
   getParentRoute: () => Route,
   path: '/dashboard',
