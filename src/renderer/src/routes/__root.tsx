@@ -1,32 +1,23 @@
-import { Link, Outlet, createRootRoute, createRoute } from '@tanstack/react-router'
+import { createRootRoute, createRoute } from '@tanstack/react-router'
 
 // list of pages
 import Dashsboard from '@renderer/pages/Dashsboard'
 import Settings from '@renderer/pages/Settings'
+import Employee from '@renderer/pages/Employee'
+import Layouts from '@renderer/components/Layouts'
 
 export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header className="p-2 flex gap-2 bg-white text-black justify-between">
-        <nav className="flex flex-row">
-          <div className="px-2 font-bold">
-            <Link className="m-2" to="/">
-              Home
-            </Link>
-            <Link className="m-2" to="/settings">
-              Settings
-            </Link>
-          </div>
-        </nav>
-      </header>
-      <Outlet />
-    </>
-  )
+  component: () => <Layouts />
 })
 
-const dashboardRoute = createRoute({
+const appRoute = createRoute({
   getParentRoute: () => Route,
   path: '/',
+  component: () => <div>HR x Talenta App v1.0.0</div>
+})
+const dashboardRoute = createRoute({
+  getParentRoute: () => Route,
+  path: '/dashboard',
   component: () => <Dashsboard />
 })
 
@@ -36,4 +27,10 @@ const settingsRoute = createRoute({
   component: () => <Settings />
 })
 
-export const routeTree = Route.addChildren([dashboardRoute, settingsRoute])
+const employeeRoute = createRoute({
+  getParentRoute: () => Route,
+  path: '/employee',
+  component: () => <Employee />
+})
+
+export const routeTree = Route.addChildren([appRoute, dashboardRoute, settingsRoute, employeeRoute])

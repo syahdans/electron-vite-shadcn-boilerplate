@@ -14,7 +14,7 @@ export default function App() {
           <Button>Three</Button>
         </div>
       </div>
-      <div className="bg-rose-100 min-h-[100vh] flex-1 rounded-xl md:min-h-min">Dashboard</div>
+      <div className="bg-red-400 min-h-[100vh] flex-1 rounded-xl md:min-h-min">Employee</div>
     </div>
   )
 }
