@@ -5,7 +5,6 @@ import Dashsboard from '@renderer/pages/Dashsboard'
 import Settings from '@renderer/pages/Settings'
 import Employee from '@renderer/pages/Employee'
 import Layouts from '@renderer/components/Layouts'
-import AppBanner from '@renderer/components/AppBanner'
 
 export const Route = createRootRoute({
   component: () => <Layouts />
@@ -14,12 +13,6 @@ export const Route = createRootRoute({
 const appRoute = createRoute({
   getParentRoute: () => Route,
   path: '/',
-  component: () => <AppBanner />
-})
-
-const dashboardRoute = createRoute({
-  getParentRoute: () => Route,
-  path: '/dashboard',
   component: () => <Dashsboard />
 })
 
@@ -35,4 +28,4 @@ const employeeRoute = createRoute({
   component: () => <Employee />
 })
 
-export const routeTree = Route.addChildren([appRoute, dashboardRoute, settingsRoute, employeeRoute])
+export const routeTree = Route.addChildren([appRoute, settingsRoute, employeeRoute])

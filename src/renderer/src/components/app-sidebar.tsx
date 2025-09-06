@@ -23,11 +23,6 @@ const data = {
       url: '#',
       items: [
         {
-          title: 'Dashboard',
-          url: '/dashboard'
-          // isActive: true
-        },
-        {
           title: 'Employee',
           url: '/employee'
           // isActive: true

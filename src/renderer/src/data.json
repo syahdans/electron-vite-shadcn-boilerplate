@@ -1,0 +1,62 @@
+{
+  "companyInfo": {
+    "message": "get company info successfully",
+    "data": {
+      "company_name": "SDET STAGING API 1",
+      "hq_initial": "Pusat",
+      "street_address": "MidPlaza",
+      "regency_name": "",
+      "province_name": "DKI Jakarta",
+      "postal_code": "54288",
+      "phone_number": "3943449941",
+      "email_address": "sdet-automation+test61@mekari.com",
+      "bpjs_ketenagakerjaan": "6770940836",
+      "jkk": "1",
+      "tax_person_name": "SDET",
+      "tax_person_npwp": "50.560.478.8-035.712",
+      "company_taxable_date": "2010-02-01",
+      "company_npwp": "34.091.709.2-492.006",
+      "klu_code": "21012"
+    }
+  },
+  "branch": {},
+  "turnOver": {
+    "message": "Successfully get turn over report yearly data",
+    "data": {
+      "turnover": {
+        "turnover_data": [
+          {
+            "employee_id": 9,
+            "full_name": "test id dah ",
+            "branch_name": "",
+            "organization": "RFA",
+            "job_position": "CEO",
+            "job_level": "CEO",
+            "month": 10,
+            "join_date": "2020-12-02",
+            "resign_date": "2021-10-13",
+            "length_of_service": "0 Year 10 Month 12 Day",
+            "reason": "OTHER",
+            "note": ""
+          }
+        ],
+        "total_employee_active": 917,
+        "total_new_join": 399,
+        "total_resign": 84,
+        "total_employee_active_last_year": 603
+      },
+      "pagination": {
+        "current_page": 1,
+        "first_page_url": "/v2/turnover/39429/report?company_id=870&limit=5&page=1&year=2021&per-page=5",
+        "from": 1,
+        "last_page": 91,
+        "last_page_url": "/v2/turnover/39429/report?company_id=870&limit=5&page=91&year=2021&per-page=5",
+        "next_page_url": "/v2/turnover/39429/report?company_id=870&limit=5&page=2&year=2021&per-page=5",
+        "path": "/v2/turnover/39429/report",
+        "per_page": 5,
+        "to": 5,
+        "total": 452
+      }
+    }
+  }
+}
