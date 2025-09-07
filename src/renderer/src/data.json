@@ -19,7 +19,62 @@
       "klu_code": "21012"
     }
   },
-  "branch": {},
+  "branch": {
+    "message": "get branches successfully",
+    "data": {
+      "branches": [
+        {
+          "id": 18621,
+          "name": "Branch 6",
+          "parent_branch_id": 0,
+          "address": "Eiusmod enim deserunt mollit irure enim incididunt proident.",
+          "regency_name": "Kota Jakarta Pusat",
+          "province_name": "DKI Jakarta",
+          "postal_code": 0,
+          "phone": "",
+          "fax_number": "",
+          "tax_person_name": "Jakarta",
+          "tax_person_npwp": "37.216.746.1-784.617",
+          "branch_tax_name": "Jakarta",
+          "branch_npwp": "63.728.731.6-238.126",
+          "klu_code": ""
+        },
+        {
+          "id": 18622,
+          "name": "Branch 7",
+          "parent_branch_id": 0,
+          "address": "Dolore ullamco consequat aute id ad officia enim in quis consectetur eu mollit.",
+          "regency_name": "Kota Semarang",
+          "province_name": "Jawa Tengah",
+          "postal_code": 0,
+          "phone": "",
+          "fax_number": "",
+          "tax_person_name": "Semarang",
+          "tax_person_npwp": "37.216.746.1-784.617",
+          "branch_tax_name": "Semarang",
+          "branch_npwp": "63.728.731.6-238.126",
+          "klu_code": ""
+        },
+        {
+          "id": 18623,
+          "name": "Branch 8",
+          "parent_branch_id": 0,
+          "address": "Ut excepteur laboris aute tempor sit consectetur aliquip laborum.",
+          "regency_name": "Denpasar",
+          "province_name": "Bali",
+          "postal_code": 0,
+          "phone": "",
+          "fax_number": "",
+          "tax_person_name": "Denpasar",
+          "tax_person_npwp": "37.216.746.1-784.617",
+          "branch_tax_name": "Denpasar",
+          "branch_npwp": "63.728.731.6-238.126",
+          "klu_code": ""
+        }
+      ],
+      "total": 3
+    }
+  },
   "turnOver": {
     "message": "Successfully get turn over report yearly data",
     "data": {

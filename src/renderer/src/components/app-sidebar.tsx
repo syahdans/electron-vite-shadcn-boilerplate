@@ -28,7 +28,7 @@ const data = {
           // isActive: true
         },
         {
-          title: 'Settings',
+          title: 'NFC Settings',
           url: '/settings'
           // isActive: true
         }
@@ -65,7 +65,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <GalleryVerticalEnd className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-medium">HR x Talenta</span>
+                  <span className="font-medium">HR Talent</span>
                   <span className="">v1.0.0</span>
                 </div>
               </Link>
