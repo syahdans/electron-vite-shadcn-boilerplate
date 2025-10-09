@@ -113,5 +113,123 @@
         "total": 452
       }
     }
+  },
+  "employee": {
+    "message": "Get employee info successfully",
+    "data": {
+      "employee": {
+        "user_id": 102091,
+        "sso_id": "",
+        "created_at": "2018-04-15 13:02:18",
+        "updated_at": "2023-10-03 14:40:47",
+        "personal": {
+          "first_name": "Abdul Ghonl",
+          "last_name": "",
+          "barcode": "0014",
+          "email": "burungwalet1900+Test0014@gmail.com",
+          "identity_type": "KTP",
+          "identity_number": "0014",
+          "expired_date_identity_id": "2030-12-31",
+          "postal_code": "11171",
+          "address": "Jakarta",
+          "current_address": "Bandung",
+          "birth_place": "Jakarta",
+          "birth_date": "1989-07-31",
+          "phone": "0812596514034",
+          "mobile_phone": "0812596514034",
+          "gender": "Male",
+          "marital_status": "Single",
+          "blood_type": "",
+          "religion": "Buddha",
+          "avatar": "https://talenta.oss-ap-southeast-5.aliyuncs.com/avatar/blank.jpg"
+        },
+        "family": {
+          "members": [],
+          "emergency_contacts": []
+        },
+        "education": {
+          "formal_education_history": [],
+          "informal_education_history": []
+        },
+        "employment": {
+          "employee_id": "ID0014",
+          "company_id": 1202,
+          "organization_id": 19517,
+          "organization_name": "Marketing",
+          "job_position_id": 55043,
+          "job_position": "Manager Sales & Marketing",
+          "job_level": "Manager",
+          "employment_status": "Permanent",
+          "end_date": "",
+          "branch_id": 0,
+          "branch": "Pusat",
+          "join_date": "2011-12-25",
+          "length_of_service": "12 Year 4 Month 6 Day",
+          "grade": "3",
+          "class": "editc",
+          "approval_line": null,
+          "status": "Active",
+          "resign_date": "",
+          "working_experiences": [],
+          "nationality_code": "",
+          "sign_date": "2023-10-03",
+          "sbu": [
+            {
+              "field_id": 46,
+              "field_name": "Activation",
+              "value_id": null,
+              "value_name": null,
+              "value_code": null
+            },
+            {
+              "field_id": 240,
+              "field_name": "test export",
+              "value_id": null,
+              "value_name": null,
+              "value_code": null
+            }
+          ]
+        },
+        "payroll_info": {
+          "cost_center_id": 0,
+          "cost_center_name": "",
+          "cost_center_category_id": null,
+          "cost_center_category_name": ""
+        },
+        "custom_field": [
+          {
+            "field_name": "Test Text Area",
+            "value": ""
+          },
+          {
+            "field_name": "Test Dropdown",
+            "value": ""
+          },
+          {
+            "field_name": "aaaaaa",
+            "value": ""
+          },
+          {
+            "field_name": "test dulu ah",
+            "value": ""
+          },
+          {
+            "field_name": "baru1",
+            "value": ""
+          },
+          {
+            "field_name": "Test load 100",
+            "value": ""
+          }
+        ],
+        "access_role": {
+          "id": 2,
+          "name": "Employee",
+          "role_id": 2,
+          "role_name": "Employee",
+          "role_type": "default"
+        }
+      }
+    }
   }
 }
