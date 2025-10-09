@@ -8,6 +8,7 @@
 
 
 # hasil tap yang bisa ditampilkan sekarang
+- [ ] Profile karyawan
 - [ ] Absensi dan Rekapan 
 - [ ] Rincian Data Pinjaman (saldo sisa hutang bulan tsb)
 - [ ] Sisa Cuti Karyawan
