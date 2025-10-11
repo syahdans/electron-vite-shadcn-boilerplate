@@ -1,3 +1,4 @@
+import moment from 'moment'
 import { Button } from '@renderer/components/ui/button'
 import { Input } from '@renderer/components/ui/input'
 import {
@@ -8,7 +9,6 @@ import {
   CardHeader,
   CardTitle
 } from '@renderer/components/ui/card'
-import moment from 'moment'
 
 import user from '@renderer/assets/images/user-li.jpg'
 import data from '@renderer/data.json'
@@ -74,9 +74,7 @@ export default function App() {
                 <p className="text-xs">Tidak Check out</p>
               </div>
             </div>
-            <div className="grid gap-2">
-              <div className="col-span-1 p-2 bg-rose-100">tables</div>
-            </div>
+            <div className="grid gap-2">table</div>
           </div>
         </CardContent>
       </Card>
@@ -189,7 +187,15 @@ export default function App() {
           <CardDescription>Aset Karyawan</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex p-2 bg-sky-100">tables</div>
+          <div className="grid gap-2">
+            <SimpleTable
+              columns={ASSET_TASKS_COLUMNS}
+              data={ASSET_TASKS_DATA}
+              caption="Daftar Aset Karyawan"
+              filterColumn={['title', 'status', 'label', 'priority']}
+              filterPlaceholder="Filter aset..."
+            />
+          </div>
         </CardContent>
       </Card>
     </div>
