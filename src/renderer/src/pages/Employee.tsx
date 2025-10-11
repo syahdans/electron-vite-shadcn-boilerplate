@@ -187,15 +187,7 @@ export default function App() {
           <CardDescription>Aset Karyawan</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-2">
-            <SimpleTable
-              columns={ASSET_TASKS_COLUMNS}
-              data={ASSET_TASKS_DATA}
-              caption="Daftar Aset Karyawan"
-              filterColumn={['title', 'status', 'label', 'priority']}
-              filterPlaceholder="Filter aset..."
-            />
-          </div>
+          <div className="grid gap-2">table</div>
         </CardContent>
       </Card>
     </div>

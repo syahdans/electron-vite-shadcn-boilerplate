@@ -1,0 +1,14 @@
+[
+  {"id":"TASK-1001","title":"Fix login bug","status":"todo","label":"bug","priority":"high"},
+  {"id":"TASK-1002","title":"Refactor auth flow","status":"in progress","label":"feature","priority":"medium"},
+  {"id":"TASK-1003","title":"Add user settings page","status":"backlog","label":"feature","priority":"low"},
+  {"id":"TASK-1004","title":"Improve error handling","status":"in progress","label":"documentation","priority":"medium"},
+  {"id":"TASK-1005","title":"Write unit tests","status":"todo","label":"documentation","priority":"high"},
+  {"id":"TASK-1006","title":"Optimize database queries","status":"todo","label":"maintenance","priority":"high"},
+  {"id":"TASK-1007","title":"Upgrade dependencies","status":"done","label":"maintenance","priority":"low"},
+  {"id":"TASK-1008","title":"Create onboarding guide","status":"done","label":"documentation","priority":"medium"},
+  {"id":"TASK-1009","title":"Implement search","status":"in progress","label":"feature","priority":"high"},
+  {"id":"TASK-1010","title":"Polish UI styles","status":"backlog","label":"feature","priority":"low"},
+  {"id":"TASK-1011","title":"Add dark mode","status":"todo","label":"feature","priority":"medium"},
+  {"id":"TASK-1012","title":"Fix avatar upload","status":"canceled","label":"bug","priority":"low"}
+]
