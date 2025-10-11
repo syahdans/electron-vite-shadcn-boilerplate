@@ -9,9 +9,9 @@
 
 # hasil tap yang bisa ditampilkan sekarang
 - [ ] Profile karyawan
+- [ ] Sisa Cuti Karyawan
 - [ ] Absensi dan Rekapan 
 - [ ] Rincian Data Pinjaman (saldo sisa hutang bulan tsb)
-- [ ] Sisa Cuti Karyawan
 - [ ] BPJS Kes dan Tenaga Kerja
 
 # belum bisa, menunggu dari talenta

@@ -12,6 +12,7 @@ import {
 
 import user from '@renderer/assets/images/user-li.jpg'
 import data from '@renderer/data.json'
+import { EmployeeAttendance as AttendanceTable } from '@renderer/components/DataTables'
 
 export default function App() {
   const personal = data.employee.data.employee.personal
@@ -27,54 +28,6 @@ export default function App() {
             <Button type="button" variant="outline">
               Find
             </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* absens card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Absensi</CardTitle>
-          <CardDescription>Rekap Absensi Karyawan dan Detail</CardDescription>
-          <CardAction>
-            <Input placeholder="month, year" />
-          </CardAction>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-2">
-            <div className="grid gap-2 grid-cols-5 p-2 border rounded">
-              <div className="p-2 rounded bg-rose-100">
-                <p>
-                  <b>123</b>
-                </p>
-                <p className="text-xs">Tidak Hadir</p>
-              </div>
-              <div className="p-2 rounded bg-rose-100">
-                <p>
-                  <b>123</b>
-                </p>
-                <p className="text-xs">Datang Terlambat</p>
-              </div>
-              <div className="p-2 rounded bg-rose-100">
-                <p>
-                  <b>123</b>
-                </p>
-                <p className="text-xs">Pulang Cepat</p>
-              </div>
-              <div className="p-2 rounded bg-rose-100">
-                <p>
-                  <b>123</b>
-                </p>
-                <p className="text-xs">Tidak Check in</p>
-              </div>
-              <div className="p-2 rounded bg-rose-100">
-                <p>
-                  <b>123</b>
-                </p>
-                <p className="text-xs">Tidak Check out</p>
-              </div>
-            </div>
-            <div className="grid gap-2">table</div>
           </div>
         </CardContent>
       </Card>
@@ -148,6 +101,57 @@ export default function App() {
           </div>
         </CardContent>
       </Card>
+      {/* absens card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Absensi</CardTitle>
+          <CardDescription>Rekap Absensi Karyawan dan Detail</CardDescription>
+          <CardAction>
+            <Input placeholder="month, year" />
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-2">
+            <div className="grid gap-2 grid-cols-5 p-2 border rounded">
+              <div className="p-2 rounded bg-rose-100">
+                <p>
+                  <b>123</b>
+                </p>
+                <p className="text-xs">Tidak Hadir</p>
+              </div>
+              <div className="p-2 rounded bg-rose-100">
+                <p>
+                  <b>123</b>
+                </p>
+                <p className="text-xs">Datang Terlambat</p>
+              </div>
+              <div className="p-2 rounded bg-rose-100">
+                <p>
+                  <b>123</b>
+                </p>
+                <p className="text-xs">Pulang Cepat</p>
+              </div>
+              <div className="p-2 rounded bg-rose-100">
+                <p>
+                  <b>123</b>
+                </p>
+                <p className="text-xs">Tidak Check in</p>
+              </div>
+              <div className="p-2 rounded bg-rose-100">
+                <p>
+                  <b>123</b>
+                </p>
+                <p className="text-xs">Tidak Check out</p>
+              </div>
+            </div>
+            <div className="mb-4"></div>
+            <div className="grid gap-2">
+              <AttendanceTable />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-2 gap-4">
         {/* balance card */}
         <Card>

@@ -1,0 +1,14 @@
+﻿[
+  {"id":"TASK-2001","title":"Tidak Hadir 1","status":"todo","label":"bug","priority":"high"},
+  {"id":"TASK-2002","title":"Terlambat 2","status":"in progress","label":"maintenance","priority":"medium"},
+  {"id":"TASK-2003","title":"Pulang Cepat","status":"backlog","label":"feature","priority":"low"},
+  {"id":"TASK-2004","title":"Tidak Check In","status":"in progress","label":"documentation","priority":"medium"},
+  {"id":"TASK-2005","title":"Tidak Check Out","status":"todo","label":"documentation","priority":"high"},
+  {"id":"TASK-2006","title":"Lembur","status":"todo","label":"maintenance","priority":"high"},
+  {"id":"TASK-2007","title":"Sakit","status":"done","label":"maintenance","priority":"low"},
+  {"id":"TASK-2008","title":"Cuti","status":"done","label":"documentation","priority":"medium"},
+  {"id":"TASK-2009","title":"Izin","status":"in progress","label":"feature","priority":"high"},
+  {"id":"TASK-2010","title":"WFH","status":"backlog","label":"feature","priority":"low"},
+  {"id":"TASK-2011","title":"Dinas","status":"todo","label":"feature","priority":"medium"},
+  {"id":"TASK-2012","title":"Training","status":"canceled","label":"bug","priority":"low"}
+]
