@@ -19,14 +19,43 @@ import {
 } from "@renderer/components/ui/dropdown-menu";
 
 import { labels } from "../data/data";
-import { taskSchema } from "../data/schema";
+import type { Task } from "../data/schema";
+
+type ActionItem<TData> = {
+  label: string;
+  onSelect?: (row: TData) => void;
+  variant?: "default" | "destructive";
+};
+
+type LabelsConfig<TData> = {
+  title?: string;
+  options: { label: string; value: string }[];
+  getSelected: (row: TData) => string;
+  onChange?: (row: TData, value: string) => void;
+};
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
+  actions?: ActionItem<TData>[];
+  labelsConfig?: LabelsConfig<TData>;
 }
 
-export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
-  const task = taskSchema.parse(row.original);
+export function DataTableRowActions<TData>({ row, actions, labelsConfig }: DataTableRowActionsProps<TData>) {
+  const defaultActions: ActionItem<TData>[] = [
+    { label: "Edit" },
+    { label: "Make a copy" },
+    { label: "Favorite" },
+    { label: "Delete", variant: "destructive" }
+  ];
+
+  const items = actions?.length ? actions : defaultActions;
+
+  const labelsCfg: LabelsConfig<TData> | undefined = labelsConfig || {
+    title: "Labels",
+    options: labels,
+    getSelected: (r) => (r as unknown as Task).label ?? "",
+    onChange: undefined
+  };
 
   return (
     <DropdownMenu>
@@ -36,29 +65,56 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>Edit</DropdownMenuItem>
-        <DropdownMenuItem>Make a copy</DropdownMenuItem>
-        <DropdownMenuItem>Favorite</DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
-            <DropdownMenuRadioGroup value={task.label}>
-              {labels.map((label) => (
-                <DropdownMenuRadioItem key={label.value} value={label.value}>
-                  {label.label}
-                </DropdownMenuRadioItem>
+      <DropdownMenuContent align="end" className="w-[180px]">
+        {items
+          .filter((it) => it.variant !== "destructive")
+          .map((it) => (
+            <DropdownMenuItem key={it.label} onClick={() => it.onSelect?.(row.original as TData)}>
+              {it.label}
+            </DropdownMenuItem>
+          ))}
+        {labelsCfg ? (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>{labelsCfg.title ?? "Labels"}</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                <DropdownMenuRadioGroup value={labelsCfg.getSelected(row.original as TData)}>
+                  {labelsCfg.options.map((opt) => (
+                    <DropdownMenuRadioItem
+                      key={opt.value}
+                      value={opt.value}
+                      onClick={() => labelsCfg.onChange?.(row.original as TData, opt.value)}
+                    >
+                      {opt.label}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          </>
+        ) : null}
+        {items.some((it) => it.variant === "destructive") ? (
+          <>
+            <DropdownMenuSeparator />
+            {items
+              .filter((it) => it.variant === "destructive")
+              .map((it) => (
+                <DropdownMenuItem
+                  key={it.label}
+                  variant="destructive"
+                  onClick={() => it.onSelect?.(row.original as TData)}
+                >
+                  {it.label}
+                  <DropdownMenuShortcut>Del</DropdownMenuShortcut>
+                </DropdownMenuItem>
               ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive">
-          Delete
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-        </DropdownMenuItem>
+          </>
+        ) : null}
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
+
+export default DataTableRowActions;
+
