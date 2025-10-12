@@ -2,6 +2,13 @@ import moment from 'moment'
 import { Button } from '@renderer/components/ui/button'
 import { Input } from '@renderer/components/ui/input'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@renderer/components/ui/select'
+import {
   Card,
   CardAction,
   CardContent,
@@ -17,6 +24,22 @@ import { EmployeeAttendance as AttendanceTable } from '@renderer/components/Data
 export default function App() {
   const personal = data.employee.data.employee.personal
   const employment = data.employee.data.employee.employment
+
+  const periods = Array.from({ length: 10 }, (_, i) => {
+    const m = moment().subtract(i, 'months')
+    return { value: m.format('YYYY-MM'), label: m.format('MMMM YYYY') }
+  })
+
+  async function handlePeriodChange(value: string) {
+    const url = 'http://localhost:3000/attendance'
+    try {
+      const res = await fetch(url)
+      const json = await res.json()
+      console.log('attendance period fetch', json)
+    } finally {
+      // console.log(url)
+    }
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -41,13 +64,6 @@ export default function App() {
         <CardContent>
           <div className="grid gap-2 grid-cols-7">
             <div className="col-span-1 p-2 max-h-40 border rounded">
-              {/* <div className="h-full w-full rounded overflow-hidden">
-                <img 
-                  src={user} 
-                  alt="Employee" 
-                  className="w-full"
-                />
-              </div> */}
               <div className="bg-rose-300 w-full max-h-35 rounded overflow-hidden">
                 <img src={user} alt="Employee" className="w-full h-full object-cover" />
               </div>
@@ -107,7 +123,18 @@ export default function App() {
           <CardTitle>Absensi</CardTitle>
           <CardDescription>Rekap Absensi Karyawan dan Detail</CardDescription>
           <CardAction>
-            <Input placeholder="month, year" />
+            <Select onValueChange={handlePeriodChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="month, year" />
+              </SelectTrigger>
+              <SelectContent>
+                {periods.map((p) => (
+                  <SelectItem key={p.value} value={p.value}>
+                    {p.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </CardAction>
         </CardHeader>
         <CardContent>
