@@ -13,7 +13,7 @@ export const Route = createRootRoute({
 const appRoute = createRoute({
   getParentRoute: () => Route,
   path: '/',
-  component: () => <Dashsboard />
+  component: () => <Employee />
 })
 
 const settingsRoute = createRoute({
@@ -25,7 +25,7 @@ const settingsRoute = createRoute({
 const employeeRoute = createRoute({
   getParentRoute: () => Route,
   path: '/employee',
-  component: () => <Employee />
+  component: () => <Dashsboard />
 })
 
 export const routeTree = Route.addChildren([appRoute, settingsRoute, employeeRoute])

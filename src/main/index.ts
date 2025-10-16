@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { NFC } from 'nfc-pcsc'
+// import { NFC } from 'nfc-pcsc'
 
 function createWindow(): void {
   // Create the browser window.
@@ -20,7 +20,7 @@ function createWindow(): void {
   })
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.maximize()
+    // mainWindow.maximize()
     mainWindow.show()
   })
 

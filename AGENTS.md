@@ -17,7 +17,7 @@ Conventions
   - Prefer small, focused React function components.
   - Co-locate component logic and JSX; avoid premature abstraction.
   - Reuse existing UI primitives from `src/renderer/src/components/ui` (e.g., `button`, `card`, `table`, `input`).
-  - Keep props typed; avoid `any`.
+  - Do not use type props
 
 - Styling
   - Use Tailwind utility classes already present in the project.

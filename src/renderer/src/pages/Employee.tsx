@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@renderer/components/ui/button'
 import { Input } from '@renderer/components/ui/input'
 import {
@@ -23,29 +23,12 @@ import data from '@renderer/data.json'
 import { EmployeeAttendance as AttendanceTable } from '@renderer/components/DataTables'
 
 export default function App() {
-  const personal = data.employee.data.employee.personal
-  const employment = data.employee.data.employee.employment
+  const [employee, setEmployee] = useState(data.employee.data.employee)
+  const queryRef = useRef('')
+  const personal = employee.personal
+  const employment = employee.employment
 
-  type AttendanceItem = {
-    employee_id: string
-    schedule_date: string
-    schedule_in: string
-    schedule_out: string
-    clock_in: string
-    clock_out: string
-    holiday: boolean
-    timeoff_code: string
-  }
-
-  type Summary = {
-    absence: number
-    late_clockin: number
-    early_clockout: number
-    no_checkin: number
-    no_checkout: number
-  }
-
-  const [summary, setSummary] = useState<Summary>({
+  const [summary, setSummary] = useState({
     absence: 0,
     late_clockin: 0,
     early_clockout: 0,
@@ -58,32 +41,37 @@ export default function App() {
     return { value: m.format('YYYY-MM'), label: m.format('MMMM YYYY') }
   })
 
-  async function handlePeriodChange(value: string) {
-    const start_date = moment(value, 'YYYY-MM').startOf('month').format('YYYY-MM-DD')
-    const end_date = moment(value, 'YYYY-MM').endOf('month').format('YYYY-MM-DD')
+  async function handlePeriodChange(period: string) {
+    const start_date = moment(period, 'YYYY-MM').startOf('month').format('YYYY-MM-DD')
+    const end_date = moment(period, 'YYYY-MM').endOf('month').format('YYYY-MM-DD')
     const employee_id = employment.employee_id
 
     const baseUrl = 'http://localhost:3000/attendance'
-    const qs = new URLSearchParams({ start_date, end_date, employee_id })
+    const qs = new URLSearchParams({ start_date, end_date })
 
-    let list: AttendanceItem[] = []
+    let list = []
     try {
       const res = await fetch(`${baseUrl}?${qs.toString()}`)
       const json = await res.json()
-      const remote = (json?.data?.summary_attendance_report || []) as AttendanceItem[]
+      const remote = json?.data?.summary_attendance_report || []
       list = remote
     } catch {
       list = []
     }
+
+    const inRange = list.filter((it) => {
+      if (it.employee_id !== employee_id) return false
+      const d = it.schedule_date
+      return d >= start_date && d <= end_date
+    })
 
     let absence = 0
     let lateClockin = 0
     let earlyCheckout = 0
     let noCheckin = 0
     let noCheckout = 0
-    console.log('testasdasdasd')
 
-    for (const it of list) {
+    for (const it of inRange) {
       const date = it.schedule_date
       const schedIn = moment(`${date} ${it.schedule_in}`, 'YYYY-MM-DD HH:mm:ss')
       const schedOut = moment(`${date} ${it.schedule_out}`, 'YYYY-MM-DD HH:mm:ss')
@@ -113,10 +101,22 @@ export default function App() {
     })
   }
 
-  useEffect(() => {
-    const current = moment().format('YYYY-MM')
-    handlePeriodChange(current)
-  }, [])
+  async function findEmployee(employee_id: string) {
+    if (!employee_id) return
+    const url = `http://localhost:3000/employee?data.employee.user_id=${employee_id}`
+    try {
+      const res = await fetch(url)
+      const json = await res.json()
+      const emp = json?.data?.employee
+      if (emp) {
+        setEmployee(emp)
+        const current = moment().format('YYYY-MM')
+        handlePeriodChange(current)
+      }
+    } catch {
+      // ignore errors and keep existing employee data
+    }
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -124,8 +124,15 @@ export default function App() {
       <Card className="p-2">
         <CardContent className="p-2">
           <div className="flex w-full max-w-sm items-center gap-2">
-            <Input placeholder="Nomor Induk Karyawan" />
-            <Button type="button" variant="outline">
+            <Input
+              placeholder="Nomor Induk Karyawan"
+              onChange={(e) => (queryRef.current = e.target.value)}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => findEmployee(queryRef.current.trim())}
+            >
               Find
             </Button>
           </div>
@@ -194,6 +201,7 @@ export default function App() {
           </div>
         </CardContent>
       </Card>
+
       {/* absens card */}
       <Card>
         <CardHeader>
