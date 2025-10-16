@@ -1,4 +1,5 @@
 import moment from 'moment'
+import { useEffect, useState } from 'react'
 import { Button } from '@renderer/components/ui/button'
 import { Input } from '@renderer/components/ui/input'
 import {
@@ -25,21 +26,97 @@ export default function App() {
   const personal = data.employee.data.employee.personal
   const employment = data.employee.data.employee.employment
 
+  type AttendanceItem = {
+    employee_id: string
+    schedule_date: string
+    schedule_in: string
+    schedule_out: string
+    clock_in: string
+    clock_out: string
+    holiday: boolean
+    timeoff_code: string
+  }
+
+  type Summary = {
+    absence: number
+    late_clockin: number
+    early_clockout: number
+    no_checkin: number
+    no_checkout: number
+  }
+
+  const [summary, setSummary] = useState<Summary>({
+    absence: 0,
+    late_clockin: 0,
+    early_clockout: 0,
+    no_checkin: 0,
+    no_checkout: 0
+  })
+
   const periods = Array.from({ length: 10 }, (_, i) => {
     const m = moment().subtract(i, 'months')
     return { value: m.format('YYYY-MM'), label: m.format('MMMM YYYY') }
   })
 
   async function handlePeriodChange(value: string) {
-    const url = 'http://localhost:3000/attendance'
+    const start_date = moment(value, 'YYYY-MM').startOf('month').format('YYYY-MM-DD')
+    const end_date = moment(value, 'YYYY-MM').endOf('month').format('YYYY-MM-DD')
+    const employee_id = employment.employee_id
+
+    const baseUrl = 'http://localhost:3000/attendance'
+    const qs = new URLSearchParams({ start_date, end_date, employee_id })
+
+    let list: AttendanceItem[] = []
     try {
-      const res = await fetch(url)
+      const res = await fetch(`${baseUrl}?${qs.toString()}`)
       const json = await res.json()
-      console.log('attendance period fetch', json)
-    } finally {
-      // console.log(url)
+      const remote = (json?.data?.summary_attendance_report || []) as AttendanceItem[]
+      list = remote
+    } catch {
+      list = []
     }
+
+    let absence = 0
+    let lateClockin = 0
+    let earlyCheckout = 0
+    let noCheckin = 0
+    let noCheckout = 0
+    console.log('testasdasdasd')
+
+    for (const it of list) {
+      const date = it.schedule_date
+      const schedIn = moment(`${date} ${it.schedule_in}`, 'YYYY-MM-DD HH:mm:ss')
+      const schedOut = moment(`${date} ${it.schedule_out}`, 'YYYY-MM-DD HH:mm:ss')
+      const hasIn = !!it.clock_in
+      const hasOut = !!it.clock_out
+
+      if (!hasIn) noCheckin++
+      if (!hasOut) noCheckout++
+      if (!hasIn && !hasOut && !it.holiday && !it.timeoff_code) absence++
+
+      if (hasIn) {
+        const clkIn = moment(`${date} ${it.clock_in}`, 'YYYY-MM-DD HH:mm:ss')
+        if (clkIn.isAfter(schedIn)) lateClockin++
+      }
+      if (hasOut) {
+        const clkOut = moment(`${date} ${it.clock_out}`, 'YYYY-MM-DD HH:mm:ss')
+        if (clkOut.isBefore(schedOut)) earlyCheckout++
+      }
+    }
+
+    setSummary({
+      absence,
+      late_clockin: lateClockin,
+      early_clockout: earlyCheckout,
+      no_checkin: noCheckin,
+      no_checkout: noCheckout
+    })
   }
+
+  useEffect(() => {
+    const current = moment().format('YYYY-MM')
+    handlePeriodChange(current)
+  }, [])
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -142,31 +219,31 @@ export default function App() {
             <div className="grid gap-2 grid-cols-5 p-2 border rounded">
               <div className="p-2 rounded bg-rose-100">
                 <p>
-                  <b>123</b>
+                  <b>{summary.absence}</b>
                 </p>
                 <p className="text-xs">Tidak Hadir</p>
               </div>
               <div className="p-2 rounded bg-rose-100">
                 <p>
-                  <b>123</b>
+                  <b>{summary.late_clockin}</b>
                 </p>
                 <p className="text-xs">Datang Terlambat</p>
               </div>
               <div className="p-2 rounded bg-rose-100">
                 <p>
-                  <b>123</b>
+                  <b>{summary.early_clockout}</b>
                 </p>
                 <p className="text-xs">Pulang Cepat</p>
               </div>
               <div className="p-2 rounded bg-rose-100">
                 <p>
-                  <b>123</b>
+                  <b>{summary.no_checkin}</b>
                 </p>
                 <p className="text-xs">Tidak Check in</p>
               </div>
               <div className="p-2 rounded bg-rose-100">
                 <p>
-                  <b>123</b>
+                  <b>{summary.no_checkout}</b>
                 </p>
                 <p className="text-xs">Tidak Check out</p>
               </div>
