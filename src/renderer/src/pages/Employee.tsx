@@ -1,7 +1,10 @@
 import moment from 'moment'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Button } from '@renderer/components/ui/button'
 import { Input } from '@renderer/components/ui/input'
+import { Skeleton } from '@renderer/components/ui/skeleton'
+import { Spinner } from '@renderer/components/ui/spinner'
 import {
   Select,
   SelectContent,
@@ -23,99 +26,103 @@ import data from '@renderer/data.json'
 import { EmployeeAttendance as AttendanceTable } from '@renderer/components/DataTables'
 
 export default function App() {
-  const [employee, setEmployee] = useState(data.employee.data.employee)
+  const initialEmployee = data.employee.data.employee
+  const [employeeId, setEmployeeId] = useState(null)
   const queryRef = useRef('')
+
+  const employeeQuery = useQuery({
+    queryKey: ['employee', employeeId],
+    enabled: employeeId !== null,
+    initialData: initialEmployee,
+    queryFn: async () => {
+      const id = employeeId
+      if (!id) return initialEmployee
+      const url = `http://localhost:3000/employee?data.employee.user_id=${id}`
+      const res = await fetch(url)
+      const json = await res.json()
+      const emp = json?.data?.employee
+      return emp || initialEmployee
+    }
+  })
+
+  const employee = employeeQuery.data
   const personal = employee.personal
   const employment = employee.employment
-
-  const [summary, setSummary] = useState({
-    absence: 0,
-    late_clockin: 0,
-    early_clockout: 0,
-    no_checkin: 0,
-    no_checkout: 0
-  })
 
   const periods = Array.from({ length: 10 }, (_, i) => {
     const m = moment().subtract(i, 'months')
     return { value: m.format('YYYY-MM'), label: m.format('MMMM YYYY') }
   })
 
-  async function handlePeriodChange(period: string) {
-    const start_date = moment(period, 'YYYY-MM').startOf('month').format('YYYY-MM-DD')
-    const end_date = moment(period, 'YYYY-MM').endOf('month').format('YYYY-MM-DD')
-    const employee_id = employment.employee_id
+  const [period, setPeriod] = useState(moment().format('YYYY-MM'))
 
-    const baseUrl = 'http://localhost:3000/attendance'
-    const qs = new URLSearchParams({ start_date, end_date })
+  const attendanceSummaryQuery = useQuery({
+    queryKey: ['attendance-summary', employment?.employee_id, period],
+    enabled: !!employment?.employee_id && !!period,
+    initialData: {
+      absence: 0,
+      late_clockin: 0,
+      early_clockout: 0,
+      no_checkin: 0,
+      no_checkout: 0
+    },
+    queryFn: async () => {
+      const start_date = moment(period, 'YYYY-MM').startOf('month').format('YYYY-MM-DD')
+      const end_date = moment(period, 'YYYY-MM').endOf('month').format('YYYY-MM-DD')
+      const employee_id = employment.employee_id
 
-    let list = []
-    try {
-      const res = await fetch(`${baseUrl}?${qs.toString()}`)
+      const qs = new URLSearchParams({ start_date, end_date })
+      const res = await fetch(`http://localhost:3000/attendance?${qs.toString()}`)
       const json = await res.json()
-      const remote = json?.data?.summary_attendance_report || []
-      list = remote
-    } catch {
-      list = []
-    }
 
-    const inRange = list.filter((it) => {
-      if (it.employee_id !== employee_id) return false
-      const d = it.schedule_date
-      return d >= start_date && d <= end_date
-    })
+      const list = json?.data?.summary_attendance_report || []
 
-    let absence = 0
-    let lateClockin = 0
-    let earlyCheckout = 0
-    let noCheckin = 0
-    let noCheckout = 0
+      const inRange = list.filter((it) => {
+        if (it.employee_id !== employee_id) return false
+        const d = it.schedule_date
+        return d >= start_date && d <= end_date
+      })
 
-    for (const it of inRange) {
-      const date = it.schedule_date
-      const schedIn = moment(`${date} ${it.schedule_in}`, 'YYYY-MM-DD HH:mm:ss')
-      const schedOut = moment(`${date} ${it.schedule_out}`, 'YYYY-MM-DD HH:mm:ss')
-      const hasIn = !!it.clock_in
-      const hasOut = !!it.clock_out
+      let absence = 0
+      let lateClockin = 0
+      let earlyCheckout = 0
+      let noCheckin = 0
+      let noCheckout = 0
 
-      if (!hasIn) noCheckin++
-      if (!hasOut) noCheckout++
-      if (!hasIn && !hasOut && !it.holiday && !it.timeoff_code) absence++
+      for (const it of inRange) {
+        const date = it.schedule_date
+        const schedIn = moment(`${date} ${it.schedule_in}`, 'YYYY-MM-DD HH:mm:ss')
+        const schedOut = moment(`${date} ${it.schedule_out}`, 'YYYY-MM-DD HH:mm:ss')
+        const hasIn = !!it.clock_in
+        const hasOut = !!it.clock_out
 
-      if (hasIn) {
-        const clkIn = moment(`${date} ${it.clock_in}`, 'YYYY-MM-DD HH:mm:ss')
-        if (clkIn.isAfter(schedIn)) lateClockin++
+        if (!hasIn) noCheckin++
+        if (!hasOut) noCheckout++
+        if (!hasIn && !hasOut && !it.holiday && !it.timeoff_code) absence++
+
+        if (hasIn) {
+          const clkIn = moment(`${date} ${it.clock_in}`, 'YYYY-MM-DD HH:mm:ss')
+          if (clkIn.isAfter(schedIn)) lateClockin++
+        }
+        if (hasOut) {
+          const clkOut = moment(`${date} ${it.clock_out}`, 'YYYY-MM-DD HH:mm:ss')
+          if (clkOut.isBefore(schedOut)) earlyCheckout++
+        }
       }
-      if (hasOut) {
-        const clkOut = moment(`${date} ${it.clock_out}`, 'YYYY-MM-DD HH:mm:ss')
-        if (clkOut.isBefore(schedOut)) earlyCheckout++
+
+      return {
+        absence,
+        late_clockin: lateClockin,
+        early_clockout: earlyCheckout,
+        no_checkin: noCheckin,
+        no_checkout: noCheckout
       }
     }
+  })
 
-    setSummary({
-      absence,
-      late_clockin: lateClockin,
-      early_clockout: earlyCheckout,
-      no_checkin: noCheckin,
-      no_checkout: noCheckout
-    })
-  }
-
-  async function findEmployee(employee_id: string) {
-    if (!employee_id) return
-    const url = `http://localhost:3000/employee?data.employee.user_id=${employee_id}`
-    try {
-      const res = await fetch(url)
-      const json = await res.json()
-      const emp = json?.data?.employee
-      if (emp) {
-        setEmployee(emp)
-        const current = moment().format('YYYY-MM')
-        handlePeriodChange(current)
-      }
-    } catch {
-      // ignore errors and keep existing employee data
-    }
+  function findEmployee(employee_id: string) {
+    setTimeout(() => {}, 5000)
+    setEmployeeId(employee_id || null)
   }
 
   return (
@@ -123,18 +130,29 @@ export default function App() {
       {/* searching button */}
       <Card className="p-2">
         <CardContent className="p-2">
-          <div className="flex w-full max-w-sm items-center gap-2">
-            <Input
-              placeholder="Nomor Induk Karyawan"
-              onChange={(e) => (queryRef.current = e.target.value)}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => findEmployee(queryRef.current.trim())}
-            >
-              Find
-            </Button>
+          <div className="grid grid-cols-3 gap-2">
+            <div className="col-span-1 flex flex-row gap-2 bg-slate-100">
+              <Input
+                placeholder="Nomor Induk Karyawan"
+                onChange={(e) => (queryRef.current = e.target.value)}
+              />
+              {employeeQuery.isFetching && (
+                <Button disabled size="sm">
+                  <Spinner />
+                  Thinking...
+                </Button>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => findEmployee(queryRef.current.trim())}
+              >
+                Find
+              </Button>
+            </div>
+            {/* <div className="col-span-1">
+              
+            </div> */}
           </div>
         </CardContent>
       </Card>
@@ -208,7 +226,7 @@ export default function App() {
           <CardTitle>Absensi</CardTitle>
           <CardDescription>Rekap Absensi Karyawan dan Detail</CardDescription>
           <CardAction>
-            <Select onValueChange={handlePeriodChange}>
+            <Select onValueChange={setPeriod}>
               <SelectTrigger>
                 <SelectValue placeholder="month, year" />
               </SelectTrigger>
@@ -225,36 +243,48 @@ export default function App() {
         <CardContent>
           <div className="grid gap-2">
             <div className="grid gap-2 grid-cols-5 p-2 border rounded">
-              <div className="p-2 rounded bg-rose-100">
-                <p>
-                  <b>{summary.absence}</b>
-                </p>
-                <p className="text-xs">Tidak Hadir</p>
-              </div>
-              <div className="p-2 rounded bg-rose-100">
-                <p>
-                  <b>{summary.late_clockin}</b>
-                </p>
-                <p className="text-xs">Datang Terlambat</p>
-              </div>
-              <div className="p-2 rounded bg-rose-100">
-                <p>
-                  <b>{summary.early_clockout}</b>
-                </p>
-                <p className="text-xs">Pulang Cepat</p>
-              </div>
-              <div className="p-2 rounded bg-rose-100">
-                <p>
-                  <b>{summary.no_checkin}</b>
-                </p>
-                <p className="text-xs">Tidak Check in</p>
-              </div>
-              <div className="p-2 rounded bg-rose-100">
-                <p>
-                  <b>{summary.no_checkout}</b>
-                </p>
-                <p className="text-xs">Tidak Check out</p>
-              </div>
+              {attendanceSummaryQuery.isFetching ? (
+                <>
+                  <Skeleton className="h-14 p-2 rounded bg-rose-100" />
+                  <Skeleton className="h-14 p-2 rounded bg-rose-100" />
+                  <Skeleton className="h-14 p-2 rounded bg-rose-100" />
+                  <Skeleton className="h-14 p-2 rounded bg-rose-100" />
+                  <Skeleton className="h-14 p-2 rounded bg-rose-100" />
+                </>
+              ) : (
+                <>
+                  <div className="p-2 rounded bg-rose-100">
+                    <p>
+                      <b>{attendanceSummaryQuery.data.absence}</b>
+                    </p>
+                    <p className="text-xs">Tidak Hadir</p>
+                  </div>
+                  <div className="p-2 rounded bg-rose-100">
+                    <p>
+                      <b>{attendanceSummaryQuery.data.late_clockin}</b>
+                    </p>
+                    <p className="text-xs">Datang Terlambat</p>
+                  </div>
+                  <div className="p-2 rounded bg-rose-100">
+                    <p>
+                      <b>{attendanceSummaryQuery.data.early_clockout}</b>
+                    </p>
+                    <p className="text-xs">Pulang Cepat</p>
+                  </div>
+                  <div className="p-2 rounded bg-rose-100">
+                    <p>
+                      <b>{attendanceSummaryQuery.data.no_checkin}</b>
+                    </p>
+                    <p className="text-xs">Tidak Check in</p>
+                  </div>
+                  <div className="p-2 rounded bg-rose-100">
+                    <p>
+                      <b>{attendanceSummaryQuery.data.no_checkout}</b>
+                    </p>
+                    <p className="text-xs">Tidak Check out</p>
+                  </div>
+                </>
+              )}
             </div>
             <div className="mb-4"></div>
             <div className="grid gap-2">
