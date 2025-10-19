@@ -18,3 +18,54 @@
 - [ ] Rincian Data Tabungan 
 - [ ] Serah terima inventori (Data Aset)
 
+
+
+
+
+
+
+
+
+<!-- <div className="grid grid-cols-2 gap-4">
+    {/* balance card */}
+    <Card>
+        <CardHeader>
+        <CardTitle>Tabungan</CardTitle>
+        <CardDescription>Total Tabungan dan Detail</CardDescription>
+        </CardHeader>
+        <CardContent>
+        <div className="grid gap-2">
+            <div className="grid gap-2 grid-cols-5">
+            <div className="col-span-1 p-2 bg-slate-100">Total</div>
+            </div>
+            <div className="flex p-2 bg-rose-100">tables</div>
+        </div>
+        </CardContent>
+    </Card>
+    {/* loan card */}
+    <Card>
+        <CardHeader>
+        <CardTitle>Hutang</CardTitle>
+        <CardDescription>Hutang Karyawan dan Detail</CardDescription>
+        </CardHeader>
+        <CardContent>
+        <div className="grid gap-2">
+            <div className="grid gap-2 grid-cols-5">
+            <div className="col-span-1 p-2 bg-slate-100">Total</div>
+            </div>
+            <div className="flex p-2 bg-rose-100">tables</div>
+        </div>
+        </CardContent>
+    </Card>
+    </div>
+    {/* assets card */}
+    <Card>
+    <CardHeader>
+        <CardTitle>Aset</CardTitle>
+        <CardDescription>Aset Karyawan</CardDescription>
+    </CardHeader>
+    <CardContent>
+        <div className="grid gap-2">table</div>
+    </CardContent>
+    </Card> -->
+

@@ -5,6 +5,6 @@ import type { Task } from './data/schema'
 
 const tasks = tasksJson as Task[]
 
-export default function EmployeeAttendanceTable() {
-  return <DataTable data={tasks} columns={columns} />
+export default function EmployeeAttendanceTable({ data }) {
+  return <DataTable data={data} columns={columns} />
 }

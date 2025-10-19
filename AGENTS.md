@@ -22,6 +22,7 @@ Conventions
 - Styling
   - Use Tailwind utility classes already present in the project.
   - Keep class lists readable; group by layout → spacing → color → misc.
+  - User Interface must be Responsive
 
 - Imports
   - Use the `@renderer` alias for renderer-side imports (e.g., `@renderer/components/ui/button`).
