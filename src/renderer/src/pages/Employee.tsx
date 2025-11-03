@@ -24,6 +24,7 @@ import { EmployeeAttendance as AttendanceTable } from '@renderer/components/Data
 
 import user from '@renderer/assets/images/user-li.jpg'
 import data from '@renderer/data.json'
+import crypto from 'crypto'
 
 /*
 this page will show data of emplyee based on user input
@@ -37,6 +38,26 @@ task:
 2. when employee data is ready then set data to the Card
 3. when ebsence data is ready then set data to card
 */
+
+/**
+ * Generate authentication headers based on method and path
+ */
+function generate_headers(method, pathWithQueryParam) {
+  let client_id = 'NTACWrQPxCG2Kw9Q'
+  let client_secret = 'eNWbaFmKD6uv4nmRDPvBcHpbnpfn3SEw'
+
+  let datetime = new Date().toUTCString()
+  let requestLine = `${method} ${pathWithQueryParam} HTTP/1.1`
+  let payload = [`date: ${datetime}`, requestLine].join('\n')
+  let signature = crypto.createHmac('SHA256', client_id).update(payload).digest('base64')
+
+  return {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    Date: datetime,
+    Authorization: `hmac username="${client_secret}", algorithm="hmac-sha256", headers="date request-line", signature="${signature}"`
+  }
+}
 
 export default function App() {
   const initialEmployee = data.employee.data.employee
@@ -53,6 +74,31 @@ export default function App() {
   const [period, setPeriod] = useState<string>(moment().format('YYYY-MM'))
   const queryRef = useRef('')
 
+  // const employeeQuery = useQuery({
+  //   queryKey: ['employee', employeeId],
+  //   enabled: employeeId !== null,
+  //   initialData: initialEmployee,
+  //   queryFn: async () => {
+  //     if (!employeeId) return initialEmployee
+
+  //     // Set method and path for the request
+  //     let path = `https://api.mekari.com/v2/talenta/v3/employee/employment-info`
+  //     let queryParam = `?employee_id=${employeeId}`
+  //     let headers = {}
+
+  //     const options = {
+  //       method: 'GET',
+  //       headers: { ...generate_headers('GET', path + queryParam), ...headers }
+  //     }
+
+  //     console.log(options)
+
+  //     const json = await (await fetch(path + queryParam, options)).json()
+
+  //     return json?.data?.employee || initialEmployee
+  //   }
+  // })
+
   const employeeQuery = useQuery({
     queryKey: ['employee', employeeId],
     enabled: employeeId !== null,
@@ -60,9 +106,29 @@ export default function App() {
     queryFn: async () => {
       if (!employeeId) return initialEmployee
 
-      const url = `http://localhost:3000/employee?data.employee.user_id=${employeeId}`
+      const path = `/v2/talenta/v3/employee/employment-info`
+      const queryParam = `?employee_id=${employeeId}`
 
-      const json = await (await fetch(url)).json()
+      const client_id = (import.meta as any).env?.VITE_MEKARI_CLIENT_ID || ''
+      const client_secret = (import.meta as any).env?.VITE_MEKARI_CLIENT_SECRET || ''
+
+      const datetime = new Date().toUTCString()
+      const requestLine = `GET ${path}${queryParam} HTTP/1.1`
+      const payload = [`date: ${datetime}`, requestLine].join('\n')
+      const signature = crypto.createHmac('sha256', client_secret).update(payload).digest('base64')
+
+      const headers = {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Date: datetime,
+        Authorization: `hmac username="${client_id}", algorithm="hmac-sha256", headers="date request-line", signature="${signature}"`
+      }
+
+      console.log(headers)
+
+      const url = `https://api.mekari.com${path}${queryParam}`
+      const res = await fetch(url, { method: 'GET', headers })
+      const json = await res.json()
 
       return json?.data?.employee || initialEmployee
     }
@@ -248,7 +314,7 @@ export default function App() {
           </CardAction>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-2">
+          <div className="grid gap-1">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 p-2 border rounded">
               {attendanceSummaryQuery.isFetching ? (
                 <>
@@ -308,10 +374,7 @@ export default function App() {
                 </>
               )}
             </div>
-            <div className="mb-4"></div>
-            <div className="grid gap-2">
-              <AttendanceTable data={attendanceSummaryQuery.data.list_of_attendance} />
-            </div>
+            <AttendanceTable data={attendanceSummaryQuery.data.list_of_attendance} />
           </div>
         </CardContent>
       </Card>

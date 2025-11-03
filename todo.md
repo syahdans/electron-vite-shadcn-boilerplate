@@ -19,13 +19,6 @@
 - [ ] Serah terima inventori (Data Aset)
 
 
-
-
-
-
-
-
-
 <!-- <div className="grid grid-cols-2 gap-4">
     {/* balance card */}
     <Card>

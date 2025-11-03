@@ -3,12 +3,9 @@
 import { ColumnDef } from '@tanstack/react-table'
 
 import { Badge } from '@renderer/components/ui/badge'
-import { Checkbox } from '@renderer/components/ui/checkbox'
 
-import { labels, priorities, statuses } from '../data/data'
 import { Task } from '../data/schema'
 import { DataTableColumnHeader } from './data-table-column-header'
-import { DataTableRowActions } from './data-table-row-actions'
 import moment from 'moment'
 
 export const columns: ColumnDef<Task>[] = [
@@ -16,7 +13,11 @@ export const columns: ColumnDef<Task>[] = [
     accessorKey: 'schedule_date',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Tanggal" />,
     cell: ({ row }) => {
-      let date = moment(row.getValue('schedule_date')).format('D MMM YYYY')
+      let schedule_date = (row.original as any)?.schedule_date
+      let schedule_in = (row.original as any)?.schedule_in
+      let schedule_out = (row.original as any)?.schedule_out
+
+      let date = moment(schedule_date).format('D MMM YYYY')
       return (
         <div className="w-[80px]">
           <Badge variant="outline">
@@ -24,7 +25,7 @@ export const columns: ColumnDef<Task>[] = [
           </Badge>
           <br />
           <span className="italic text-xs">
-            {row.getValue('schedule_in')} - {row.getValue('schedule_out')}
+            {schedule_in} - {schedule_out}
           </span>
         </div>
       )
@@ -35,7 +36,13 @@ export const columns: ColumnDef<Task>[] = [
   {
     accessorKey: 'clock_in',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Absen Datang" />,
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue('clock_in')}</div>,
+    cell: ({ row }) => {
+      let clock_in = (row.original as any)?.clock_in ?? ''
+
+      if (!clock_in) return <div className="w-[80px] text-red-500">Tidak Absen</div>
+
+      return <div className="w-[80px]">{row.getValue('clock_in')}</div>
+    },
     enableSorting: false,
     enableHiding: false
   },
@@ -43,15 +50,15 @@ export const columns: ColumnDef<Task>[] = [
     accessorKey: 'terlambat',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Terlambat" />,
     cell: ({ row }) => {
-      const clockIn = row.getValue('clock_in')
-      const scheduleIn = row.getValue('schedule_in')
+      let clock_in = (row.original as any)?.clock_in ?? ''
+      let schedule_in = (row.original as any)?.schedule_in ?? ''
 
-      if (!clockIn) return <div className="w-[80px] text-red-500">Tidak Absen</div>
-
-      const diff = moment(clockIn, 'HH:mm:ss').diff(moment(scheduleIn, 'HH:mm:ss'))
+      const diff = moment(clock_in, 'HH:mm:ss').diff(moment(schedule_in, 'HH:mm:ss'))
       const late = diff > 0 ? moment.utc(diff).format('HH:mm:ss') : '00:00:00'
 
-      return <div className="w-[80px]">{late}</div>
+      if (diff > 0) return <div className="w-[80px] text-red-500">{late}</div>
+
+      return <div className="w-[80px]">-</div>
     },
     enableSorting: false,
     enableHiding: false
@@ -59,14 +66,49 @@ export const columns: ColumnDef<Task>[] = [
   {
     accessorKey: 'clock_out',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Absen Pulang" />,
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue('clock_out')}</div>,
+    cell: ({ row }) => {
+      let clock_out = (row.original as any)?.clock_out ?? ''
+
+      if (!clock_out) return <div className="w-[80px] text-red-500">Tidak Absen</div>
+
+      return <div className="w-[80px]">{row.getValue('clock_out')}</div>
+    },
     enableSorting: false,
     enableHiding: false
   },
   {
     accessorKey: 'pulang_cepat',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Pulang Cepat" />,
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue('clock_out')}</div>,
+    cell: ({ row }) => {
+      let clock_out = (row.original as any)?.clock_out ?? ''
+      let schedule_out = (row.original as any)?.schedule_out ?? ''
+
+      const diff = moment(schedule_out, 'HH:mm:ss').diff(moment(clock_out, 'HH:mm:ss'))
+      const early = diff > 0 ? moment.utc(diff).format('HH:mm:ss') : '00:00:00'
+
+      if (diff > 0) return <div className="w-[80px] text-red-500">{early}</div>
+
+      return <div className="w-[80px]">-</div>
+    },
+    enableSorting: false,
+    enableHiding: false
+  },
+
+  {
+    accessorKey: 'keterangan',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Keterangan" />,
+    cell: ({ row }) => {
+      let clock_in = (row.original as any)?.clock_in ?? ''
+      let clock_out = (row.original as any)?.clock_out ?? ''
+
+      if (!clock_out && !clock_in) return <div className="w-[80px] text-red-500">Tidak Hadir</div>
+
+      if (!clock_in) return <div className="w-[80px] text-red-500">Tidak Absen Datang</div>
+
+      if (!clock_out) return <div className="w-[80px] text-red-500">Tidak Absen Pulang</div>
+
+      return <div className="w-[80px]">-</div>
+    },
     enableSorting: false,
     enableHiding: false
   }
