@@ -6,10 +6,12 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    envPrefix: 'MV_'
   },
   preload: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    envPrefix: 'PV_'
   },
   renderer: {
     resolve: {
@@ -23,6 +25,7 @@ export default defineConfig({
       tanstackRouter({
         routesDirectory: './src/renderer/src/routes'
       })
-    ]
+    ],
+    envPrefix: 'RV_'
   }
 })

@@ -2,7 +2,29 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import crypto from 'node:crypto'
+import axios from 'axios'
 // import { NFC } from 'nfc-pcsc'
+
+/**
+ * Generate authentication headers based on method and path
+ */
+function generate_headers(method: string, pathWithQueryParam: string) {
+  const clientId = (import.meta as any).env.MV_MEKARI_CLIENT_ID || ''
+  const clientSecret = (import.meta as any).env.MV_MEKARI_CLIENT_SECRET || ''
+
+  let datetime = new Date().toUTCString()
+  let requestLine = `${method} ${pathWithQueryParam} HTTP/1.1`
+  let payload = [`date: ${datetime}`, requestLine].join('\n')
+  let signature = crypto.createHmac('SHA256', clientSecret).update(payload).digest('base64')
+
+  return {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    Date: datetime,
+    Authorization: `hmac username="${clientId}", algorithm="hmac-sha256", headers="date request-line", signature="${signature}"`
+  }
+}
 
 function createWindow(): void {
   // Create the browser window.
@@ -56,6 +78,36 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  ipcMain.handle('talenta:request', async (_, args) => {
+    console.log('[main] mekari:request', args?.method, args?.pathWithQuery)
+
+    const base_url = (import.meta as any).env.MV_BASE_URL
+    const method = args?.method
+    const pathWithQuery = args?.pathWithQuery
+
+    const options = {
+      method: method,
+      url: `${base_url}${pathWithQuery}`,
+      headers: generate_headers(method, pathWithQuery)
+    }
+
+    // Initiate request
+    axios(options)
+      .then(function (response) {
+        console.log(response.data)
+      })
+      .catch(function (error) {
+        if (error.response) {
+          console.log(error.response)
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.log(error.request)
+        } else {
+          console.log('Error', error.message)
+        }
+      })
+  })
 
   createWindow()
 

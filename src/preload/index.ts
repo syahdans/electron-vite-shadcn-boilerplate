@@ -1,8 +1,12 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
-const api = {}
+const api = {
+  async requestTalenta(method: string, pathWithQuery: string) {
+    return await ipcRenderer.invoke('talenta:request', { method, pathWithQuery })
+  }
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
@@ -16,7 +20,7 @@ if (process.contextIsolated) {
   }
 } else {
   // @ts-ignore (define in dts)
-  window.electron = electronAPI
+  ;(window as any).electron = electronAPI
   // @ts-ignore (define in dts)
-  window.api = api
+  ;(window as any).api = api
 }

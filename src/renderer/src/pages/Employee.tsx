@@ -24,7 +24,6 @@ import { EmployeeAttendance as AttendanceTable } from '@renderer/components/Data
 
 import user from '@renderer/assets/images/user-li.jpg'
 import data from '@renderer/data.json'
-import crypto from 'crypto'
 
 /*
 this page will show data of emplyee based on user input
@@ -38,26 +37,6 @@ task:
 2. when employee data is ready then set data to the Card
 3. when ebsence data is ready then set data to card
 */
-
-/**
- * Generate authentication headers based on method and path
- */
-function generate_headers(method, pathWithQueryParam) {
-  let client_id = 'NTACWrQPxCG2Kw9Q'
-  let client_secret = 'eNWbaFmKD6uv4nmRDPvBcHpbnpfn3SEw'
-
-  let datetime = new Date().toUTCString()
-  let requestLine = `${method} ${pathWithQueryParam} HTTP/1.1`
-  let payload = [`date: ${datetime}`, requestLine].join('\n')
-  let signature = crypto.createHmac('SHA256', client_id).update(payload).digest('base64')
-
-  return {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-    Date: datetime,
-    Authorization: `hmac username="${client_secret}", algorithm="hmac-sha256", headers="date request-line", signature="${signature}"`
-  }
-}
 
 export default function App() {
   const initialEmployee = data.employee.data.employee
@@ -108,28 +87,10 @@ export default function App() {
 
       const path = `/v2/talenta/v3/employee/employment-info`
       const queryParam = `?employee_id=${employeeId}`
+      const result = await window.api.requestTalenta('GET', `${path}${queryParam}`)
 
-      const client_id = (import.meta as any).env?.VITE_MEKARI_CLIENT_ID || ''
-      const client_secret = (import.meta as any).env?.VITE_MEKARI_CLIENT_SECRET || ''
-
-      const datetime = new Date().toUTCString()
-      const requestLine = `GET ${path}${queryParam} HTTP/1.1`
-      const payload = [`date: ${datetime}`, requestLine].join('\n')
-      const signature = crypto.createHmac('sha256', client_secret).update(payload).digest('base64')
-
-      const headers = {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Date: datetime,
-        Authorization: `hmac username="${client_id}", algorithm="hmac-sha256", headers="date request-line", signature="${signature}"`
-      }
-
-      console.log(headers)
-
-      const url = `https://api.mekari.com${path}${queryParam}`
-      const res = await fetch(url, { method: 'GET', headers })
-      const json = await res.json()
-
+      if (!result.ok) return initialEmployee
+      const json = result.json
       return json?.data?.employee || initialEmployee
     }
   })
