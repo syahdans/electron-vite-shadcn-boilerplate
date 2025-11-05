@@ -24,6 +24,7 @@ import { EmployeeAttendance as AttendanceTable } from '@renderer/components/Data
 
 import user from '@renderer/assets/images/user-li.jpg'
 import data from '@renderer/data.json'
+import dataEmployee from '@renderer/employee.json'
 
 /*
 this page will show data of emplyee based on user input
@@ -53,45 +54,26 @@ export default function App() {
   const [period, setPeriod] = useState<string>(moment().format('YYYY-MM'))
   const queryRef = useRef('')
 
-  // const employeeQuery = useQuery({
-  //   queryKey: ['employee', employeeId],
-  //   enabled: employeeId !== null,
-  //   initialData: initialEmployee,
-  //   queryFn: async () => {
-  //     if (!employeeId) return initialEmployee
-
-  //     // Set method and path for the request
-  //     let path = `https://api.mekari.com/v2/talenta/v3/employee/employment-info`
-  //     let queryParam = `?employee_id=${employeeId}`
-  //     let headers = {}
-
-  //     const options = {
-  //       method: 'GET',
-  //       headers: { ...generate_headers('GET', path + queryParam), ...headers }
-  //     }
-
-  //     console.log(options)
-
-  //     const json = await (await fetch(path + queryParam, options)).json()
-
-  //     return json?.data?.employee || initialEmployee
-  //   }
-  // })
-
   const employeeQuery = useQuery({
     queryKey: ['employee', employeeId],
     enabled: employeeId !== null,
     initialData: initialEmployee,
     queryFn: async () => {
       if (!employeeId) return initialEmployee
+      const employee = dataEmployee.find((e) => e.employee_id === employeeId)
 
-      const path = `/v2/talenta/v3/employee/employment-info`
-      const queryParam = `?employee_id=${employeeId}`
-      const result = await window.api.requestTalenta('GET', `${path}${queryParam}`)
+      if (!employee) {
+        console.log('Karyawan tidak ditemukan.')
+        return initialEmployee
+      }
 
-      if (!result.ok) return initialEmployee
-      const json = result.json
-      return json?.data?.employee || initialEmployee
+      const path = `/v2/talenta/v2/employee/${employee?.user_id}`
+
+      const res = await window.api.requestTalenta('GET', `${path}`)
+
+      if (!res.ok) return initialEmployee
+
+      return res?.data?.employee || initialEmployee
     }
   })
 

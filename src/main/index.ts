@@ -80,8 +80,6 @@ app.whenReady().then(() => {
   ipcMain.on('ping', () => console.log('pong'))
 
   ipcMain.handle('talenta:request', async (_, args) => {
-    console.log('[main] mekari:request', args?.method, args?.pathWithQuery)
-
     const base_url = (import.meta as any).env.MV_BASE_URL
     const method = args?.method
     const pathWithQuery = args?.pathWithQuery
@@ -92,21 +90,21 @@ app.whenReady().then(() => {
       headers: generate_headers(method, pathWithQuery)
     }
 
-    // Initiate request
-    axios(options)
-      .then(function (response) {
-        console.log(response.data)
-      })
-      .catch(function (error) {
-        if (error.response) {
-          console.log(error.response)
-        } else if (error.request) {
-          // The request was made but no response was received
-          console.log(error.request)
-        } else {
-          console.log('Error', error.message)
-        }
-      })
+    try {
+      const res = await axios(options)
+      return {
+        ok: res.status >= 200 && res.status < 300,
+        status: res.status,
+        data: res.data.data
+      }
+    } catch (err: any) {
+      return {
+        ok: false,
+        status: err?.response?.status ?? 0,
+        data: err?.response?.data?.errors ?? [],
+        error: err?.message ?? 'Request failed'
+      }
+    }
   })
 
   createWindow()
