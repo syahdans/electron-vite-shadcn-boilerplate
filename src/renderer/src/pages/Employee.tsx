@@ -22,9 +22,12 @@ import {
 } from '@renderer/components/ui/card'
 import { EmployeeAttendance as AttendanceTable } from '@renderer/components/DataTables'
 
-import user from '@renderer/assets/images/user-li.jpg'
+import user from '@renderer/assets/images/user.png'
 import data from '@renderer/data.json'
 import dataEmployee from '@renderer/employee.json'
+import api from '@renderer/api/api.json'
+import { toast } from 'sonner'
+import { Toaster } from '@renderer/components/ui/sonner'
 
 /*
 this page will show data of emplyee based on user input
@@ -60,20 +63,24 @@ export default function App() {
     initialData: initialEmployee,
     queryFn: async () => {
       if (!employeeId) return initialEmployee
-      const employee = dataEmployee.find((e) => e.employee_id === employeeId)
+      const employee = dataEmployee.find(
+        (e) => e.employee_id.toLowerCase() === employeeId.toLowerCase()
+      )
 
       if (!employee) {
-        console.log('Karyawan tidak ditemukan.')
+        toast.warning('Karyawan tidak ditemukan.')
         return initialEmployee
       }
 
-      const path = `/v2/talenta/v2/employee/${employee?.user_id}`
+      const path = `${api['employee-by-user-id']}/${employee?.user_id}`
 
       const res = await window.api.requestTalenta('GET', `${path}`)
 
-      if (!res.ok) return initialEmployee
+      if (!res.ok) {
+        toast.error(res.error)
+      }
 
-      return res?.data?.employee || initialEmployee
+      return res.data.employee
     }
   })
 
@@ -86,14 +93,20 @@ export default function App() {
     enabled: !!employment?.employee_id && !!period,
     initialData: initialAttendanceSummary,
     queryFn: async () => {
-      const start_date = moment(period, 'YYYY-MM').startOf('month').format('YYYY-MM-DD')
-      const end_date = moment(period, 'YYYY-MM').endOf('month').format('YYYY-MM-DD')
+      const start_date = moment(period, 'MMMM, YYYY').startOf('month').format('YYYY-MM-DD')
+      const end_date = moment(period, 'MMMM, YYYY').endOf('month').format('YYYY-MM-DD')
 
-      const qs = new URLSearchParams({ start_date, end_date })
-      const url = `http://localhost:3000/attendance?${qs.toString()}`
-      const json = await (await fetch(url)).json()
+      const qs = new URLSearchParams({
+        date: start_date,
+        end_date,
+        user_ids: employee.user_id,
+        limit: '150'
+      })
+      const path = `${api['summary-report']}?${qs.toString()}`
+      const res = await window.api.requestTalenta('GET', `${path}`)
+      console.log(res)
 
-      const list = json?.data?.summary_attendance_report || []
+      const list = res?.data?.summary_attendance_report || []
 
       const inRange = list.filter((e) => e.user_id == employee.user_id)
 
@@ -115,11 +128,11 @@ export default function App() {
         if (!hasIn && !hasOut && !it.holiday && !it.timeoff_code) absence++
 
         if (hasIn) {
-          const clkIn = moment(`${date} ${it.clock_in}`, 'YYYY-MM-DD HH:mm:ss')
+          const clkIn = moment(`${it.clock_in}`, 'YYYY-MM-DD HH:mm:ss')
           if (clkIn.isAfter(schedIn)) lateClockin++
         }
         if (hasOut) {
-          const clkOut = moment(`${date} ${it.clock_out}`, 'YYYY-MM-DD HH:mm:ss')
+          const clkOut = moment(`${it.clock_out}`, 'YYYY-MM-DD HH:mm:ss')
           if (clkOut.isBefore(schedOut)) earlyCheckout++
         }
       }
@@ -137,6 +150,7 @@ export default function App() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
+      <Toaster position="top-right" richColors />
       {/* searching button */}
       <Card className="p-2">
         <CardContent className="p-2">
@@ -181,7 +195,11 @@ export default function App() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-2">
             <div className="col-span-1 md:col-span-1 p-2 max-h-40 border rounded">
               <div className="bg-rose-300 w-full max-h-35 rounded overflow-hidden">
-                <img src={user} alt="Employee" className="w-full h-full object-cover" />
+                <img
+                  src={personal.avatar || user}
+                  alt="Employee"
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
             {/* Details 1 (Personal Info) */}
@@ -194,7 +212,7 @@ export default function App() {
                 <span className="font-semibold">Email:</span> {personal.email}
               </p>
               <p>
-                <span className="font-semibold">Phone:</span> {personal.phone}
+                <span className="font-semibold">Phone:</span> {personal.mobile_phone}
               </p>
               <p>
                 <span className="font-semibold">Alamat:</span> {personal.address}
@@ -203,9 +221,7 @@ export default function App() {
                 <span className="font-semibold">Tempat Tgl Lahir:</span> {personal.birth_place},{' '}
                 {moment(personal.birth_date).format('ll')}
               </p>
-              <p>
-                <span className="font-semibold">Sisa Cuti:</span> 0
-              </p>
+              <p>{/* <span className="font-semibold">Sisa Cuti:</span> 0 */}</p>
             </div>
 
             {/* Details 2 (Employment Info) */}
