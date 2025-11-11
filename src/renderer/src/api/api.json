@@ -1,5 +1,6 @@
 {
   "employment-info": "/v2/talenta/v3/employee/employment-info",
   "employee-by-user-id": "/v2/talenta/v2/employee",
-  "summary-report": "/v2/talenta/v3/attendance/summary-report"
+  "summary-report": "/v2/talenta/v3/attendance/summary-report",
+  "cuti-tahunan": "/v2/talenta/v2/time-off/policies"
 }

@@ -54,7 +54,7 @@ export default function App() {
   }
 
   const [employeeId, setEmployeeId] = useState<string | null>(null)
-  const [period, setPeriod] = useState<string>(moment().format('YYYY-MM'))
+  const [period, setPeriod] = useState<string>(moment().format('MMMM, YYYY'))
   const queryRef = useRef('')
 
   const employeeQuery = useQuery({
@@ -78,6 +78,7 @@ export default function App() {
 
       if (!res.ok) {
         toast.error(res.error)
+        return initialEmployee
       }
 
       return res.data.employee
@@ -88,11 +89,36 @@ export default function App() {
   const personal = employee.personal
   const employment = employee.employment
 
+  const cutiTahunanQuery = useQuery({
+    queryKey: ['cuti-tahunan', employee?.user_id],
+    enabled: employee?.user_id != null,
+    queryFn: async () => {
+      const qs = new URLSearchParams({
+        user_id: employee.user_id
+      })
+      const path = `${api['cuti-tahunan']}?${qs.toString()}`
+      const res = await window.api.requestTalenta('GET', `${path}`)
+
+      if (!res.ok) {
+        toast.error(res.error)
+        return null
+      }
+
+      const policy = res.data.policies.find((e) => e.policy_name === 'Cuti Tahunan') ?? null
+
+      return policy
+    }
+  })
+
+  const cutiTahunan = cutiTahunanQuery.data
+
   const attendanceSummaryQuery = useQuery({
-    queryKey: ['attendance-summary', employment?.employee_id, period],
-    enabled: !!employment?.employee_id && !!period,
+    queryKey: ['attendance-summary', employee?.user_id, period],
+    enabled: !!employee?.user_id && !!period,
     initialData: initialAttendanceSummary,
     queryFn: async () => {
+      if (!employee?.user_id) return initialAttendanceSummary
+
       const start_date = moment(period, 'MMMM, YYYY').startOf('month').format('YYYY-MM-DD')
       const end_date = moment(period, 'MMMM, YYYY').endOf('month').format('YYYY-MM-DD')
 
@@ -104,7 +130,11 @@ export default function App() {
       })
       const path = `${api['summary-report']}?${qs.toString()}`
       const res = await window.api.requestTalenta('GET', `${path}`)
-      console.log(res)
+
+      if (!res.ok) {
+        toast.error(res.error)
+        return initialAttendanceSummary
+      }
 
       const list = res?.data?.summary_attendance_report || []
 
@@ -221,7 +251,9 @@ export default function App() {
                 <span className="font-semibold">Tempat Tgl Lahir:</span> {personal.birth_place},{' '}
                 {moment(personal.birth_date).format('ll')}
               </p>
-              <p>{/* <span className="font-semibold">Sisa Cuti:</span> 0 */}</p>
+              <p>
+                <span className="font-semibold">Sisa Cuti:</span> {cutiTahunan?.total || 0} Hari
+              </p>
             </div>
 
             {/* Details 2 (Employment Info) */}
