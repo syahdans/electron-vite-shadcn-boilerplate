@@ -155,7 +155,8 @@ export default function App() {
 
         if (!hasIn) noCheckin++
         if (!hasOut) noCheckout++
-        if (!hasIn && !hasOut && !it.holiday && !it.timeoff_code) absence++
+
+        if (!hasIn && !hasOut && !it.holiday && !it.timeoff_id) absence++
 
         if (hasIn) {
           const clkIn = moment(`${it.clock_in}`, 'YYYY-MM-DD HH:mm:ss')
@@ -269,10 +270,15 @@ export default function App() {
               </p>
               <p>
                 <span className="font-semibold">Tanggal Bergabung:</span>{' '}
-                {moment(employment.join_date).format('ll')}
+                {moment(employment.join_date).format('LL')}
               </p>
               <p>
-                <span className="font-semibold">Status:</span> {employment.status}
+                <span className="font-semibold">Status:</span> {employment.status} (
+                {employment.employment_status})
+              </p>
+              <p>
+                <span className="font-semibold">Akhir Kontrak: </span>
+                {moment(employment.end_date).format('LL')}
               </p>
               <p>
                 <span className="font-semibold">Lama Mengabdi:</span> {employment.length_of_service}
@@ -309,54 +315,54 @@ export default function App() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 p-2 border rounded">
               {attendanceSummaryQuery.isFetching ? (
                 <>
-                  <Skeleton className="p-2 rounded bg-green-100">
+                  <Skeleton className="p-2 rounded bg-cyan-500/25">
                     <Spinner className="my-2" />
                     <p className="text-xs">Tidak Hadir</p>
                   </Skeleton>
-                  <Skeleton className="p-2 rounded bg-green-100">
+                  <Skeleton className="p-2 rounded bg-cyan-500/25">
                     <Spinner className="my-2" />
                     <p className="text-xs">Datang Terlambat</p>
                   </Skeleton>
-                  <Skeleton className="p-2 rounded bg-green-100">
+                  <Skeleton className="p-2 rounded bg-cyan-500/25">
                     <Spinner className="my-2" />
                     <p className="text-xs">Pulang Cepat</p>
                   </Skeleton>
-                  <Skeleton className="p-2 rounded bg-green-100">
+                  <Skeleton className="p-2 rounded bg-cyan-500/25">
                     <Spinner className="my-2" />
                     <p className="text-xs">Tidak Check in</p>
                   </Skeleton>
-                  <Skeleton className="p-2 rounded bg-green-100">
+                  <Skeleton className="p-2 rounded bg-cyan-500/25">
                     <Spinner className="my-2" />
                     <p className="text-xs">Tidak Check out</p>
                   </Skeleton>
                 </>
               ) : (
                 <>
-                  <div className="p-2 rounded bg-green-100">
+                  <div className="p-2 rounded bg-cyan-500/25">
                     <div className="my-1">
                       <b>{attendanceSummaryQuery.data.absence}</b>
                     </div>
                     <p className="text-xs">Tidak Hadir</p>
                   </div>
-                  <div className="p-2 rounded bg-green-100">
+                  <div className="p-2 rounded bg-cyan-500/25">
                     <div className="my-1">
                       <b>{attendanceSummaryQuery.data.late_clockin}</b>
                     </div>
                     <p className="text-xs">Datang Terlambat</p>
                   </div>
-                  <div className="p-2 rounded bg-green-100">
+                  <div className="p-2 rounded bg-cyan-500/25">
                     <div className="my-1">
                       <b>{attendanceSummaryQuery.data.early_clockout}</b>
                     </div>
                     <p className="text-xs">Pulang Cepat</p>
                   </div>
-                  <div className="p-2 rounded bg-green-100">
+                  <div className="p-2 rounded bg-cyan-500/25">
                     <div className="my-1">
                       <b>{attendanceSummaryQuery.data.no_checkin}</b>
                     </div>
                     <p className="text-xs">Tidak Check in</p>
                   </div>
-                  <div className="p-2 rounded bg-green-100">
+                  <div className="p-2 rounded bg-cyan-500/25">
                     <div className="my-1">
                       <b>{attendanceSummaryQuery.data.no_checkout}</b>
                     </div>

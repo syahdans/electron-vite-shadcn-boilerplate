@@ -16,12 +16,13 @@ export const columns: ColumnDef<Task>[] = [
       let schedule_date = (row.original as any)?.schedule_date
       let schedule_in = (row.original as any)?.schedule_in
       let schedule_out = (row.original as any)?.schedule_out
+      let holiday = (row.original as any)?.holiday ?? false
 
       let date = moment(schedule_date).format('ddd, D MMM YYYY')
       return (
         <div className="w-[80px]">
           <Badge variant="outline">
-            <b>{date}</b>
+            {holiday ? <b className="text-red-500">{date}</b> : <b>{date}</b>}
           </Badge>
           <br />
           <span className="italic text-xs">
@@ -110,12 +111,17 @@ export const columns: ColumnDef<Task>[] = [
     cell: ({ row }) => {
       let clock_in = (row.original as any)?.clock_in ?? ''
       let clock_out = (row.original as any)?.clock_out ?? ''
+      let holiday = (row.original as any)?.holiday ?? false
+      let timeoff = (row.original as any)?.timeoff_id ?? 0
 
-      if (!clock_out && !clock_in) return <div className="w-[80px] ">Tidak Hadir</div>
+      if (!clock_out && !clock_in && !holiday && !timeoff)
+        return <div className="w-[80px] ">Tidak Hadir</div>
 
-      if (!clock_in) return <div className="w-[80px] ">Tidak Absen Datang</div>
+      if (!clock_in && !holiday && !timeoff)
+        return <div className="w-[80px] ">Tidak Absen Datang</div>
 
-      if (!clock_out) return <div className="w-[80px] ">Tidak Absen Pulang</div>
+      if (!clock_out && !holiday && !timeoff)
+        return <div className="w-[80px] ">Tidak Absen Pulang</div>
 
       return <div className="w-[80px]">-</div>
     },
