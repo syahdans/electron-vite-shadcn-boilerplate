@@ -112,6 +112,27 @@ export default function App() {
 
   const cutiTahunan = cutiTahunanQuery.data
 
+  const bpjsInfoQuery = useQuery({
+    queryKey: ['bpjs-info', employee?.user_id],
+    enabled: employee?.user_id != null,
+    queryFn: async () => {
+      const qs = new URLSearchParams({
+        user_id: employee.user_id
+      })
+      const path = `${api['bpjs-info']}?${qs.toString()}`
+      const res = await window.api.requestTalenta('GET', `${path}`)
+
+      if (!res.ok) {
+        toast.error(res.error)
+        return null
+      }
+
+      return res.data.payroll_info
+    }
+  })
+
+  const bpjsInfo = bpjsInfoQuery.data
+
   const attendanceSummaryQuery = useQuery({
     queryKey: ['attendance-summary', employee?.user_id, period],
     enabled: !!employee?.user_id && !!period,
@@ -255,6 +276,12 @@ export default function App() {
               <p>
                 <span className="font-semibold">Sisa Cuti:</span> {cutiTahunan?.total || 0} Hari
               </p>
+              <p>
+                <span className="font-semibold">Agama:</span> {personal.religion}
+              </p>
+              <p>
+                <span className="font-semibold">Status Pernikahan:</span> {personal.marital_status}
+              </p>
             </div>
 
             {/* Details 2 (Employment Info) */}
@@ -282,6 +309,17 @@ export default function App() {
               </p>
               <p>
                 <span className="font-semibold">Lama Mengabdi:</span> {employment.length_of_service}
+              </p>
+              <p>
+                <span className="font-semibold">BPJS TK:</span>{' '}
+                {bpjsInfo?.bpjs_ketenagakerjaan || ''}
+              </p>
+              <p>
+                <span className="font-semibold">BPJS Kesehatan:</span>{' '}
+                {bpjsInfo?.bpjs_kesehatan || ''}
+              </p>
+              <p>
+                <span className="font-semibold">Golongan PTKP:</span> {bpjsInfo?.ptkp_status || ''}
               </p>
             </div>
           </div>
