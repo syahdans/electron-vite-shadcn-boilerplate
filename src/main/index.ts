@@ -4,7 +4,8 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import crypto from 'node:crypto'
 import axios from 'axios'
-// import { NFC } from 'nfc-pcsc'
+// NFC interactions are handled via dynamic import of './nfc-handler.js'
+let nfcHandler: any | null = null
 
 /**
  * Generate authentication headers based on method and path
@@ -115,45 +116,19 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
-  // --- NFC reader
-
-  // const nfc = new NFC() // optionally you can pass logger
-
-  // nfc.on('reader', (reader) => {
-  //   console.log(`${reader.reader.name}  device attached`)
-
-  //   // enable when you want to auto-process ISO 14443-4 tags (standard=TAG_ISO_14443_4)
-  //   // when an ISO 14443-4 is detected, SELECT FILE command with the AID is issued
-  //   // the response is available as card.data in the card event
-  //   // see examples/basic.js line 17 for more info
-  //   // reader.aid = 'F222222222';
-
-  //   reader.on('card', (card) => {
-  //     // card is object containing following data
-  //     // [always] String type: TAG_ISO_14443_3 (standard nfc tags like MIFARE) or TAG_ISO_14443_4 (Android HCE and others)
-  //     // [always] String standard: same as type
-  //     // [only TAG_ISO_14443_3] String uid: tag uid
-  //     // [only TAG_ISO_14443_4] Buffer data: raw data from select APDU response
-
-  //     console.log(`${reader.reader.name}  card detected`, card)
-  //   })
-
-  //   reader.on('card.off', (card) => {
-  //     console.log(`${reader.reader.name}  card removed`, card)
-  //   })
-
-  //   reader.on('error', (err) => {
-  //     console.log(`${reader.reader.name}  an error occurred`, err)
-  //   })
-
-  //   reader.on('end', () => {
-  //     console.log(`${reader.reader.name}  device removed`)
-  //   })
-  // })
-
-  // nfc.on('error', (err) => {
-  //   console.log('an error occurred', err)
-  // })
+  // Initialize NFC handler dynamically
+  ;(async () => {
+    try {
+      const mod = await import('./nfc-handler.js')
+      const ElectronNFCHandler = (mod as any).default
+      if (ElectronNFCHandler) {
+        nfcHandler = new ElectronNFCHandler()
+        console.log('NFC Handler initialized successfully')
+      }
+    } catch (error) {
+      console.error('NFC Handler not found, running without NFC functionality')
+    }
+  })()
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -161,8 +136,17 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
+    try {
+      nfcHandler?.shutdown?.()
+    } catch {}
     app.quit()
   }
+})
+
+app.on('before-quit', () => {
+  try {
+    nfcHandler?.shutdown?.()
+  } catch {}
 })
 
 // In this file you can include the rest of your app's specific main process
