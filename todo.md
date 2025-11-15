@@ -11,7 +11,7 @@
 - [x] Profile karyawan
 - [x] Sisa Cuti Karyawan
 - [x] Absensi dan Rekapan 
-- [ ] Rincian Data Pinjaman (saldo sisa hutang bulan tsb)
+- [x] Rincian Data Pinjaman (saldo sisa hutang bulan tsb)
 - [x] BPJS Kes dan Tenaga Kerja
 
 # belum bisa, menunggu dari talenta

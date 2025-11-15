@@ -1,4 +1,4 @@
 import EmployeeAttendance from './EmployeeAttendance'
-// import EmployeeLoans from './EmployeeLoans'
+import EmployeeLoan from './EmployeeLoan'
 
-export { EmployeeAttendance }
+export { EmployeeAttendance, EmployeeLoan }

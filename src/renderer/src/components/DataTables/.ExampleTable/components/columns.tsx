@@ -4,6 +4,7 @@ import { ColumnDef } from '@tanstack/react-table'
 
 import { Badge } from '@renderer/components/ui/badge'
 
+import { Task } from '../data/schema'
 import { DataTableColumnHeader } from './data-table-column-header'
 import moment from 'moment'
 

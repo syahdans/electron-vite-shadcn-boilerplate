@@ -21,6 +21,7 @@ import {
   CardTitle
 } from '@renderer/components/ui/card'
 import { EmployeeAttendance as AttendanceTable } from '@renderer/components/DataTables'
+import { EmployeeLoan as LoanTable } from '@renderer/components/DataTables'
 
 import user from '@renderer/assets/images/user.png'
 import data from '@renderer/data.json'
@@ -28,19 +29,6 @@ import dataEmployee from '@renderer/employee.json'
 import api from '@renderer/api/api.json'
 import { toast } from 'sonner'
 import { Toaster } from '@renderer/components/ui/sonner'
-
-/*
-this page will show data of emplyee based on user input
-all data will fetch from multipe api endpoint
-
-in Card 1 will show karyawan detail and image from end point getEmployee() by employee id
-in Card 2 will show summary of absence and data table
-
-task:
-1. when user klick the find button, then this will trigger all API to fetch
-2. when employee data is ready then set data to the Card
-3. when ebsence data is ready then set data to card
-*/
 
 export default function App() {
   const initialEmployee = data.employee.data.employee
@@ -51,6 +39,10 @@ export default function App() {
     early_clockout: 0,
     no_checkin: 0,
     no_checkout: 0
+  }
+  const initialLoan = {
+    total: 0,
+    loan: []
   }
 
   const [employeeId, setEmployeeId] = useState<string | null>(null)
@@ -159,15 +151,13 @@ export default function App() {
 
       const list = res?.data?.summary_attendance_report || []
 
-      const inRange = list.filter((e) => e.user_id == employee.user_id)
-
       let absence = 0
       let lateClockin = 0
       let earlyCheckout = 0
       let noCheckin = 0
       let noCheckout = 0
 
-      for (const it of inRange) {
+      for (const it of list) {
         const date = it.schedule_date
         const schedIn = moment(`${date} ${it.schedule_in}`, 'YYYY-MM-DD HH:mm:ss')
         const schedOut = moment(`${date} ${it.schedule_out}`, 'YYYY-MM-DD HH:mm:ss')
@@ -190,13 +180,38 @@ export default function App() {
       }
 
       return {
-        list_of_attendance: inRange,
+        list_of_attendance: list,
         absence: absence,
         late_clockin: lateClockin,
         early_clockout: earlyCheckout,
         no_checkin: noCheckin,
         no_checkout: noCheckout
       }
+    }
+  })
+
+  const loanQuery = useQuery({
+    queryKey: ['loan', employee?.user_id],
+    enabled: employee?.user_id != null,
+    initialData: initialLoan,
+    queryFn: async () => {
+      if (!employee?.user_id) return initialLoan
+
+      const qs = new URLSearchParams({
+        transaction_ids: employee.user_id,
+        limit: '100'
+      })
+      const path = `${api['loans']}?${qs.toString()}`
+      const res = await window.api.requestTalenta('GET', `${path}`)
+
+      if (!res.ok) {
+        toast.error(res.error)
+        return initialLoan
+      }
+
+      let loan = { total: res.data.total, loans: res.data.loans ?? [] }
+
+      return loan
     }
   })
 
@@ -349,7 +364,7 @@ export default function App() {
           </CardAction>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-1">
+          <div className="grid gap-4">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 p-2 border rounded">
               {attendanceSummaryQuery.isFetching ? (
                 <>
@@ -411,6 +426,17 @@ export default function App() {
             </div>
             <AttendanceTable data={attendanceSummaryQuery.data.list_of_attendance} />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Card 3 - Loan/Pinjaman */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Pinjaman</CardTitle>
+          <CardDescription>Rincian Data Pinjaman Karyawan</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <LoanTable data={loanQuery.data.loans ?? []} />
         </CardContent>
       </Card>
     </div>
