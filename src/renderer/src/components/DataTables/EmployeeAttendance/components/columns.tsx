@@ -52,17 +52,11 @@ export const columns = [
     accessorKey: 'terlambat',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Terlambat" />,
     cell: ({ row }) => {
-      let date = (row.original as any)?.schedule_date ?? ''
-      let clock_in = (row.original as any)?.clock_in ?? ''
-      let schedule_in = (row.original as any)?.schedule_in ?? ''
+      let late_in = (row.original as any)?.late_in ?? ''
 
-      schedule_in = moment(`${date} ${schedule_in}`, 'YYYY-MM-DD HH:mm:ss')
-      clock_in = moment(`${clock_in}`, 'YYYY-MM-DD HH:mm:ss')
+      let late = moment.utc(late_in * 1000 * 60).format('HH:mm:ss')
 
-      const diff = moment(clock_in, 'HH:mm:ss').diff(moment(schedule_in, 'HH:mm:ss'))
-      let late = moment.utc(diff).format('HH:mm:ss')
-
-      if (clock_in.isAfter(schedule_in)) return <div className="w-[80px] text-red-500">{late}</div>
+      if (late_in) return <div className="w-[80px] text-red-500">{late}</div>
 
       return <div className="w-[80px]">-</div>
     },
@@ -88,18 +82,11 @@ export const columns = [
     accessorKey: 'pulang_cepat',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Pulang Cepat" />,
     cell: ({ row }) => {
-      let date = (row.original as any)?.schedule_date ?? ''
-      let clock_out = (row.original as any)?.clock_out ?? ''
-      let schedule_out = (row.original as any)?.schedule_out ?? ''
+      let early_out = (row.original as any)?.early_out ?? ''
 
-      schedule_out = moment(`${date} ${schedule_out}`, 'YYYY-MM-DD HH:mm:ss')
-      clock_out = moment(`${clock_out}`, 'YYYY-MM-DD HH:mm:ss')
+      let early = moment.utc(early_out * 1000 * 60).format('HH:mm:ss')
 
-      const diff = moment(schedule_out, 'HH:mm:ss').diff(moment(clock_out, 'HH:mm:ss'))
-      let early = moment.utc(diff).format('HH:mm:ss')
-
-      if (clock_out.isBefore(schedule_out))
-        return <div className="w-[80px] text-red-500">{early}</div>
+      if (early_out) return <div className="w-[80px] text-red-500">{early}</div>
 
       return <div className="w-[80px]">-</div>
     },

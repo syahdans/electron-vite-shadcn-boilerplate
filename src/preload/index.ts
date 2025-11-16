@@ -5,6 +5,28 @@ import { electronAPI } from '@electron-toolkit/preload'
 const api = {
   async requestTalenta(method: string, pathWithQuery: string) {
     return await ipcRenderer.invoke('talenta:request', { method, pathWithQuery })
+  },
+  onNfcReaderStatus(callback: (data: any) => void) {
+    const listener = (_event: any, payload: any) => callback(payload)
+    ipcRenderer.on('nfc-reader-status', listener)
+    return () => ipcRenderer.removeListener('nfc-reader-status', listener)
+  },
+  onNfcCardTap(callback: (data: any) => void) {
+    const listener = (_event: any, payload: any) => callback(payload)
+    ipcRenderer.on('nfc-card-tap', listener)
+    return () => ipcRenderer.removeListener('nfc-card-tap', listener)
+  },
+  onNfcCardData(callback: (data: any) => void) {
+    const listener = (_event: any, payload: any) => callback(payload)
+    ipcRenderer.on('nfc-card-data', listener)
+    return () => ipcRenderer.removeListener('nfc-card-data', listener)
+  },
+  async getNfcStatus() {
+    try {
+      return await ipcRenderer.invoke('nfc:status')
+    } catch (e) {
+      return { active: false }
+    }
   }
 }
 

@@ -1,196 +1,127 @@
 {
-  "companyInfo": {
-    "message": "get company info successfully",
-    "data": {
-      "company_name": "SDET STAGING API 1",
-      "hq_initial": "Pusat",
-      "street_address": "MidPlaza",
-      "regency_name": "",
-      "province_name": "DKI Jakarta",
-      "postal_code": "54288",
-      "phone_number": "3943449941",
-      "email_address": "sdet-automation+test61@mekari.com",
-      "bpjs_ketenagakerjaan": "6770940836",
-      "jkk": "1",
-      "tax_person_name": "SDET",
-      "tax_person_npwp": "50.560.478.8-035.712",
-      "company_taxable_date": "2010-02-01",
-      "company_npwp": "34.091.709.2-492.006",
-      "klu_code": "21012"
-    }
-  },
-  "branch": {
-    "message": "get branches successfully",
-    "data": {
-      "branches": [
-        {
-          "id": 18621,
-          "name": "Branch 6",
-          "parent_branch_id": 0,
-          "address": "Eiusmod enim deserunt mollit irure enim incididunt proident.",
-          "regency_name": "Kota Jakarta Pusat",
-          "province_name": "DKI Jakarta",
-          "postal_code": 0,
-          "phone": "",
-          "fax_number": "",
-          "tax_person_name": "Jakarta",
-          "tax_person_npwp": "37.216.746.1-784.617",
-          "branch_tax_name": "Jakarta",
-          "branch_npwp": "63.728.731.6-238.126",
-          "klu_code": ""
-        },
-        {
-          "id": 18622,
-          "name": "Branch 7",
-          "parent_branch_id": 0,
-          "address": "Dolore ullamco consequat aute id ad officia enim in quis consectetur eu mollit.",
-          "regency_name": "Kota Semarang",
-          "province_name": "Jawa Tengah",
-          "postal_code": 0,
-          "phone": "",
-          "fax_number": "",
-          "tax_person_name": "Semarang",
-          "tax_person_npwp": "37.216.746.1-784.617",
-          "branch_tax_name": "Semarang",
-          "branch_npwp": "63.728.731.6-238.126",
-          "klu_code": ""
-        },
-        {
-          "id": 18623,
-          "name": "Branch 8",
-          "parent_branch_id": 0,
-          "address": "Ut excepteur laboris aute tempor sit consectetur aliquip laborum.",
-          "regency_name": "Denpasar",
-          "province_name": "Bali",
-          "postal_code": 0,
-          "phone": "",
-          "fax_number": "",
-          "tax_person_name": "Denpasar",
-          "tax_person_npwp": "37.216.746.1-784.617",
-          "branch_tax_name": "Denpasar",
-          "branch_npwp": "63.728.731.6-238.126",
-          "klu_code": ""
-        }
-      ],
-      "total": 3
-    }
-  },
   "employee": {
-    "message": "Get employee info successfully",
-    "data": {
-      "employee": {
-        "user_id": null,
-        "sso_id": "",
-        "created_at": "2018-04-15 13:02:18",
-        "updated_at": "2023-10-03 14:40:47",
-        "personal": {
-          "first_name": "-",
-          "last_name": "-",
-          "barcode": "-",
-          "email": "-",
-          "identity_type": "-",
-          "identity_number": "-",
-          "expired_date_identity_id": "-",
-          "postal_code": "-",
-          "address": "-",
-          "current_address": "-",
-          "birth_place": "-",
-          "birth_date": "2000-01-01",
-          "phone": "-",
-          "mobile_phone": "-",
-          "gender": "-",
-          "marital_status": "-",
-          "blood_type": "-",
-          "religion": "-",
-          "avatar": ""
+    "user_id": null,
+    "sso_id": "",
+    "created_at": "2018-04-15 13:02:18",
+    "updated_at": "2023-10-03 14:40:47",
+    "personal": {
+      "first_name": "-",
+      "last_name": "-",
+      "barcode": "-",
+      "email": "-",
+      "identity_type": "-",
+      "identity_number": "-",
+      "expired_date_identity_id": "-",
+      "postal_code": "-",
+      "address": "-",
+      "current_address": "-",
+      "birth_place": "-",
+      "birth_date": "2000-01-01",
+      "phone": "-",
+      "mobile_phone": "-",
+      "gender": "-",
+      "marital_status": "-",
+      "blood_type": "-",
+      "religion": "-",
+      "avatar": ""
+    },
+    "family": {
+      "members": [],
+      "emergency_contacts": []
+    },
+    "education": {
+      "formal_education_history": [],
+      "informal_education_history": []
+    },
+    "employment": {
+      "employee_id": "-",
+      "company_id": 1202,
+      "organization_id": 19517,
+      "organization_name": "-",
+      "job_position_id": 55043,
+      "job_position": "-",
+      "job_level": "-",
+      "employment_status": "-",
+      "end_date": "",
+      "branch_id": 0,
+      "branch": "-",
+      "join_date": "2000-01-01",
+      "length_of_service": "-",
+      "grade": "3",
+      "class": "editc",
+      "approval_line": null,
+      "status": "Active",
+      "resign_date": "",
+      "working_experiences": [],
+      "nationality_code": "",
+      "sign_date": "2023-10-03",
+      "sbu": [
+        {
+          "field_id": 46,
+          "field_name": "Activation",
+          "value_id": null,
+          "value_name": null,
+          "value_code": null
         },
-        "family": {
-          "members": [],
-          "emergency_contacts": []
-        },
-        "education": {
-          "formal_education_history": [],
-          "informal_education_history": []
-        },
-        "employment": {
-          "employee_id": "-",
-          "company_id": 1202,
-          "organization_id": 19517,
-          "organization_name": "-",
-          "job_position_id": 55043,
-          "job_position": "-",
-          "job_level": "-",
-          "employment_status": "-",
-          "end_date": "",
-          "branch_id": 0,
-          "branch": "-",
-          "join_date": "2000-01-01",
-          "length_of_service": "-",
-          "grade": "3",
-          "class": "editc",
-          "approval_line": null,
-          "status": "Active",
-          "resign_date": "",
-          "working_experiences": [],
-          "nationality_code": "",
-          "sign_date": "2023-10-03",
-          "sbu": [
-            {
-              "field_id": 46,
-              "field_name": "Activation",
-              "value_id": null,
-              "value_name": null,
-              "value_code": null
-            },
-            {
-              "field_id": 240,
-              "field_name": "test export",
-              "value_id": null,
-              "value_name": null,
-              "value_code": null
-            }
-          ]
-        },
-        "payroll_info": {
-          "cost_center_id": 0,
-          "cost_center_name": "",
-          "cost_center_category_id": null,
-          "cost_center_category_name": ""
-        },
-        "custom_field": [
-          {
-            "field_name": "Test Text Area",
-            "value": ""
-          },
-          {
-            "field_name": "Test Dropdown",
-            "value": ""
-          },
-          {
-            "field_name": "aaaaaa",
-            "value": ""
-          },
-          {
-            "field_name": "test dulu ah",
-            "value": ""
-          },
-          {
-            "field_name": "baru1",
-            "value": ""
-          },
-          {
-            "field_name": "Test load 100",
-            "value": ""
-          }
-        ],
-        "access_role": {
-          "id": 2,
-          "name": "Employee",
-          "role_id": 2,
-          "role_name": "Employee",
-          "role_type": "default"
+        {
+          "field_id": 240,
+          "field_name": "test export",
+          "value_id": null,
+          "value_name": null,
+          "value_code": null
         }
+      ]
+    },
+    "payroll_info": {
+      "cost_center_id": 0,
+      "cost_center_name": "",
+      "cost_center_category_id": null,
+      "cost_center_category_name": ""
+    },
+    "custom_field": [
+      {
+        "field_name": "Test Text Area",
+        "value": ""
+      },
+      {
+        "field_name": "Test Dropdown",
+        "value": ""
+      },
+      {
+        "field_name": "aaaaaa",
+        "value": ""
+      },
+      {
+        "field_name": "test dulu ah",
+        "value": ""
+      },
+      {
+        "field_name": "baru1",
+        "value": ""
+      },
+      {
+        "field_name": "Test load 100",
+        "value": ""
       }
+    ],
+    "access_role": {
+      "id": 2,
+      "name": "Employee",
+      "role_id": 2,
+      "role_name": "Employee",
+      "role_type": "default"
     }
+  },
+  "attendanceSummary": {
+    "list_of_attendance": [],
+    "absence": 0,
+    "late_clockin": 0,
+    "early_clockout": 0,
+    "no_checkin": 0,
+    "no_checkout": 0
+  },
+  "loan": {
+    "total": 0,
+    "loan": []
   }
 }

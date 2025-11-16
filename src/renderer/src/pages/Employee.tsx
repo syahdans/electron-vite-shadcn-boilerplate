@@ -1,10 +1,12 @@
 import moment from 'moment'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { useQuery } from '@tanstack/react-query'
 import { Button } from '@renderer/components/ui/button'
 import { Input } from '@renderer/components/ui/input'
 import { Skeleton } from '@renderer/components/ui/skeleton'
 import { Spinner } from '@renderer/components/ui/spinner'
+import { Toaster } from '@renderer/components/ui/sonner'
 import {
   Select,
   SelectContent,
@@ -20,34 +22,27 @@ import {
   CardHeader,
   CardTitle
 } from '@renderer/components/ui/card'
-import { EmployeeAttendance as AttendanceTable } from '@renderer/components/DataTables'
-import { EmployeeLoan as LoanTable } from '@renderer/components/DataTables'
+import {
+  EmployeeAttendance as AttendanceTable,
+  EmployeeLoan as LoanTable
+} from '@renderer/components/DataTables'
 
 import user from '@renderer/assets/images/user.png'
-import data from '@renderer/data.json'
-import dataEmployee from '@renderer/employee.json'
+import initialData from '@renderer/data.json'
+import listEmployee from '@renderer/employee.json'
 import api from '@renderer/api/api.json'
-import { toast } from 'sonner'
-import { Toaster } from '@renderer/components/ui/sonner'
 
 export default function App() {
-  const initialEmployee = data.employee.data.employee
-  const initialAttendanceSummary = {
-    list_of_attendance: [],
-    absence: 0,
-    late_clockin: 0,
-    early_clockout: 0,
-    no_checkin: 0,
-    no_checkout: 0
-  }
-  const initialLoan = {
-    total: 0,
-    loan: []
-  }
+  const initialEmployee = initialData.employee
+  const initialAttendanceSummary = initialData.attendanceSummary
+  const initialLoan = initialData.loan
 
   const [employeeId, setEmployeeId] = useState<string | null>(null)
+  const [employeeIdInput, setEmployeeIdInput] = useState<string>('')
   const [period, setPeriod] = useState<string>(moment().format('MMMM, YYYY'))
   const queryRef = useRef('')
+  const [nfcActive, setNfcActive] = useState(false)
+  const [nfcTapped, setNfcTapped] = useState(false)
 
   const employeeQuery = useQuery({
     queryKey: ['employee', employeeId],
@@ -55,7 +50,7 @@ export default function App() {
     initialData: initialEmployee,
     queryFn: async () => {
       if (!employeeId) return initialEmployee
-      const employee = dataEmployee.find(
+      const employee = listEmployee.find(
         (e) => e.employee_id.toLowerCase() === employeeId.toLowerCase()
       )
 
@@ -80,6 +75,36 @@ export default function App() {
   const employee = employeeQuery.data
   const personal = employee.personal
   const employment = employee.employment
+  useEffect(() => {
+    const offReader = window.api?.onNfcReaderStatus?.((p: any) => setNfcActive(!!p?.active))
+    window.api?.getNfcStatus?.().then((s: any) => setNfcActive(!!s?.active)).catch(() => {})
+    const offTap = window.api?.onNfcCardTap?.(() => {
+      setNfcTapped(true)
+      setTimeout(() => setNfcTapped(false), 1500)
+    })
+    return () => {
+      if (typeof offReader === 'function') offReader()
+      if (typeof offTap === 'function') offTap()
+    }
+  }, [])
+
+  useEffect(() => {
+    const off = window.api?.onNfcCardData?.((payload: any) => {
+      const raw = payload?.id ?? ''
+      const id = typeof raw === 'string' ? raw.trim() : String(raw || '')
+      if (!id) return
+      setEmployeeIdInput(id)
+      queryRef.current = id
+      if (employeeId === id) {
+        employeeQuery.refetch()
+      } else {
+        setEmployeeId(id)
+      }
+    })
+    return () => {
+      if (typeof off === 'function') off()
+    }
+  }, [employeeId, employeeQuery])
 
   const cutiTahunanQuery = useQuery({
     queryKey: ['cuti-tahunan', employee?.user_id],
@@ -101,8 +126,6 @@ export default function App() {
       return policy
     }
   })
-
-  const cutiTahunan = cutiTahunanQuery.data
 
   const bpjsInfoQuery = useQuery({
     queryKey: ['bpjs-info', employee?.user_id],
@@ -225,7 +248,11 @@ export default function App() {
             <div className="col-span-1 flex flex-row gap-2">
               <Input
                 placeholder="Nomor Induk Karyawan"
-                onChange={(e) => (queryRef.current = e.target.value)}
+                value={employeeIdInput}
+                onChange={(e) => {
+                  setEmployeeIdInput(e.target.value)
+                  queryRef.current = e.target.value
+                }}
               />
               {employeeQuery.isFetching ? (
                 <Button disabled size="sm">
@@ -248,6 +275,20 @@ export default function App() {
                 </Button>
               )}
             </div>
+            <div className="col-span-1 flex items-center justify-end gap-4">
+              <div className="flex items-center gap-2 text-xs">
+                <span
+                  className={`h-2.5 w-2.5 rounded-full ${nfcActive ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`}
+                ></span>
+                <span>NFC Reader</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span
+                  className={`h-2.5 w-2.5 rounded-full ${nfcTapped ? 'bg-green-500 animate-ping' : 'bg-gray-300'}`}
+                ></span>
+                <span>Kartu</span>
+              </div>
+            </div>{' '}
           </div>
         </CardContent>
       </Card>
@@ -289,7 +330,8 @@ export default function App() {
                 {moment(personal.birth_date).format('ll')}
               </p>
               <p>
-                <span className="font-semibold">Sisa Cuti:</span> {cutiTahunan?.total || 0} Hari
+                <span className="font-semibold">Sisa Cuti:</span>{' '}
+                {cutiTahunanQuery?.data?.total || 0} Hari
               </p>
               <p>
                 <span className="font-semibold">Agama:</span> {personal.religion}
@@ -320,7 +362,7 @@ export default function App() {
               </p>
               <p>
                 <span className="font-semibold">Akhir Kontrak: </span>
-                {moment(employment.end_date).format('LL')}
+                {employment.end_date ?? moment(employment.end_date).format('LL')}
               </p>
               <p>
                 <span className="font-semibold">Lama Mengabdi:</span> {employment.length_of_service}
