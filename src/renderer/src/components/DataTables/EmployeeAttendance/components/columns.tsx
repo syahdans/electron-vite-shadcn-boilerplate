@@ -1,7 +1,5 @@
 'use client'
 
-import { ColumnDef } from '@tanstack/react-table'
-
 import { Badge } from '@renderer/components/ui/badge'
 
 import { DataTableColumnHeader } from './data-table-column-header'

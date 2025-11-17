@@ -1,10 +1,3 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@renderer/components/ui/select'
 import data from '@renderer/data.json'
 import {
   Building2,
@@ -25,11 +18,11 @@ import InfoItem from '@renderer/components/customs/InfoItem'
 import CouterCard from '@renderer/components/customs/CouterCard'
 
 export default function App() {
-  const turnOver = data.turnOver.data.turnover
+  const turnOver = (data as any).turnOver.data.turnover
 
-  const companyInfo = data.companyInfo.data
+  const companyInfo = (data as any).companyInfo.data
 
-  const branches = data.branch.data.branches
+  const branches = (data as any).branch.data.branches
 
   // const [data, setData] = useState(companyData)
 

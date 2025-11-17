@@ -1,7 +1,6 @@
 import { createRootRoute, createRoute } from '@tanstack/react-router'
 
 // list of pages
-import Dashsboard from '@renderer/pages/Dashsboard'
 import Settings from '@renderer/pages/Settings'
 import Employee from '@renderer/pages/Employee'
 import Nfc from '@renderer/pages/Nfc'

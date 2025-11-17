@@ -29,13 +29,13 @@ const data = {
         // },
         {
           title: 'NFC',
-          url: '/nfc'
-          // isActive: true
+          url: '/nfc',
+          isActive: false
         },
         {
           title: 'Pengaturan',
-          url: '/settings'
-          // isActive: true
+          url: '/settings',
+          isActive: false
         }
       ]
     }

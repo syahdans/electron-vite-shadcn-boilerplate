@@ -481,7 +481,7 @@ export default function App() {
           <CardDescription>Rincian Data Pinjaman Karyawan</CardDescription>
         </CardHeader>
         <CardContent>
-          <LoanTable data={loanQuery.data.loans ?? []} />
+          <LoanTable data={(loanQuery as any).data.loans ?? []} />
         </CardContent>
       </Card>
     </div>
