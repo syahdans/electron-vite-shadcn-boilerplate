@@ -116,5 +116,20 @@ export const columns = [
     },
     enableSorting: false,
     enableHiding: false
+  },
+  {
+    accessorKey: 'overtime',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Overtime" />,
+    cell: ({ row }) => {
+      let overtime = (row.original as any)?.overtime ?? ''
+
+      let ot = moment.utc(overtime * 1000 * 60).format('HH:mm:ss')
+
+      if (overtime) return <div className="w-[80px] text-red-500">{ot}</div>
+
+      return <div className="w-[80px]">-</div>
+    },
+    enableSorting: false,
+    enableHiding: false
   }
 ]

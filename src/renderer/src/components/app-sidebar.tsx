@@ -22,13 +22,18 @@ const data = {
       title: 'HR',
       url: '#',
       items: [
+        // {
+        //   title: 'Employee',
+        //   url: '/employee'
+        //   // isActive: true
+        // },
         {
-          title: 'Employee',
-          url: '/employee'
+          title: 'NFC',
+          url: '/nfc'
           // isActive: true
         },
         {
-          title: 'NFC Settings',
+          title: 'Pengaturan',
           url: '/settings'
           // isActive: true
         }

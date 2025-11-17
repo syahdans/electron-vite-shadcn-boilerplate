@@ -1,6 +1,6 @@
 # Hasil Tap NFC Card yang diinginkan
 1. Absensi & rekapan > bisa refer ke folder GET Attendance Summary Report, dimana endpoint tsb akan digunakan untuk mendapatkan recap an attendance (ci, co, timeoff, overtime, schedule dll)
-2. ⁠Rincian data tabungan > kalau boleh tau, value ini di Talenta di set pada menu module apa ya bu? cc kak @Unknown number 
+2. ⁠Rincian data tabungan > kalau boleh tau, value ini di Talenta di set pada menu module apa ya bu? 
 3. ⁠Rincian data pinjaman > untuk ini bisa refer ke endpoint LOAN, GET Loan Transaction Detail
 4. ⁠Data Aset > untuk data ini disimpan di Talenta pada module apa ya bu?
 5. ⁠Sisa cuti karyawan > bisa refer ke endpoint GET Log balance (Timeoff)

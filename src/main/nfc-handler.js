@@ -25,6 +25,14 @@ class ElectronNFCHandlerNew {
       ipcMain.handle('nfc:status', async () => {
         return { active: this.active }
       })
+      ipcMain.handle('nfc:write', async (_event, payload) => {
+        try {
+          const res = await this.writeClassicJSON(payload, { startSector: this.startSector })
+          return res
+        } catch (err) {
+          return { success: false, error: String(err?.message || err) }
+        }
+      })
     } catch {}
   }
 

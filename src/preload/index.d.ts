@@ -8,6 +8,8 @@ declare global {
       onNfcCardData(callback: (data: any) => void): () => void
       onNfcReaderStatus(callback: (data: any) => void): () => void
       onNfcCardTap(callback: (data: any) => void): () => void
+      onNfcCardRemoved(callback: (data: any) => void): () => void
+      writeNfc(payload: any): Promise<{ success: boolean; verified?: boolean; error?: string }>
       getNfcStatus(): Promise<{ active: boolean }>
     }
   }

@@ -21,6 +21,18 @@ const api = {
     ipcRenderer.on('nfc-card-data', listener)
     return () => ipcRenderer.removeListener('nfc-card-data', listener)
   },
+  onNfcCardRemoved(callback: (data: any) => void) {
+    const listener = (_event: any, payload: any) => callback(payload)
+    ipcRenderer.on('nfc-card-removed', listener)
+    return () => ipcRenderer.removeListener('nfc-card-removed', listener)
+  },
+  async writeNfc(payload: any) {
+    try {
+      return await ipcRenderer.invoke('nfc:write', payload)
+    } catch (e) {
+      return { success: false, error: (e as any)?.message || String(e) }
+    }
+  },
   async getNfcStatus() {
     try {
       return await ipcRenderer.invoke('nfc:status')

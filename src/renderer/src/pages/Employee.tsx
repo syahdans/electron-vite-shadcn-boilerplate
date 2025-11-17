@@ -77,7 +77,10 @@ export default function App() {
   const employment = employee.employment
   useEffect(() => {
     const offReader = window.api?.onNfcReaderStatus?.((p: any) => setNfcActive(!!p?.active))
-    window.api?.getNfcStatus?.().then((s: any) => setNfcActive(!!s?.active)).catch(() => {})
+    window.api
+      ?.getNfcStatus?.()
+      .then((s: any) => setNfcActive(!!s?.active))
+      .catch(() => {})
     const offTap = window.api?.onNfcCardTap?.(() => {
       setNfcTapped(true)
       setTimeout(() => setNfcTapped(false), 1500)
@@ -284,7 +287,7 @@ export default function App() {
               </div>
               <div className="flex items-center gap-2 text-xs">
                 <span
-                  className={`h-2.5 w-2.5 rounded-full ${nfcTapped ? 'bg-green-500 animate-ping' : 'bg-gray-300'}`}
+                  className={`h-2.5 w-2.5 rounded-full ${nfcTapped ? 'bg-rose-500 animate-ping' : 'bg-gray-300'}`}
                 ></span>
                 <span>Kartu</span>
               </div>

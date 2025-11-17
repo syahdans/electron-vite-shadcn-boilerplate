@@ -4,6 +4,7 @@ import { createRootRoute, createRoute } from '@tanstack/react-router'
 import Dashsboard from '@renderer/pages/Dashsboard'
 import Settings from '@renderer/pages/Settings'
 import Employee from '@renderer/pages/Employee'
+import Nfc from '@renderer/pages/Nfc'
 import Layouts from '@renderer/components/Layouts'
 
 export const Route = createRootRoute({
@@ -21,11 +22,16 @@ const settingsRoute = createRoute({
   path: '/settings',
   component: () => <Settings />
 })
-
-const employeeRoute = createRoute({
+const nfcRoute = createRoute({
   getParentRoute: () => Route,
-  path: '/employee',
-  component: () => <Dashsboard />
+  path: '/nfc',
+  component: () => <Nfc />
 })
 
-export const routeTree = Route.addChildren([appRoute, settingsRoute, employeeRoute])
+// const employeeRoute = createRoute({
+//   getParentRoute: () => Route,
+//   path: '/employee',
+//   component: () => <Dashsboard />
+// })
+
+export const routeTree = Route.addChildren([appRoute, settingsRoute, nfcRoute])
