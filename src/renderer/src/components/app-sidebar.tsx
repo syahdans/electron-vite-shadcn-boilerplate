@@ -14,7 +14,7 @@ import {
   SidebarMenuSubItem,
   SidebarRail
 } from '@renderer/components/ui/sidebar'
-import { Link } from '@tanstack/react-router'
+import { Link, useRouterState } from '@tanstack/react-router'
 
 const data = {
   navMain: [
@@ -29,13 +29,11 @@ const data = {
         // },
         {
           title: 'NFC',
-          url: '/nfc',
-          isActive: false
+          url: '/nfc'
         },
         {
           title: 'Pengaturan',
-          url: '/settings',
-          isActive: false
+          url: '/settings'
         }
       ]
     }
@@ -59,6 +57,7 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -81,19 +80,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {data.navMain.map((item) => (
-              <SidebarMenuItem key={item.title}>
+            {data.navMain.map((section) => (
+              <SidebarMenuItem key={section.title}>
                 <SidebarMenuButton asChild>
-                  <Link to={item.url} className="font-medium">
-                    {item.title}
+                  <Link to={section.url} className="font-medium">
+                    {section.title}
                   </Link>
                 </SidebarMenuButton>
-                {item.items?.length ? (
+                {section.items?.length ? (
                   <SidebarMenuSub>
-                    {item.items.map((item) => (
-                      <SidebarMenuSubItem key={item.title}>
-                        <SidebarMenuSubButton asChild isActive={item.isActive}>
-                          <Link to={item.url}>{item.title}</Link>
+                    {section.items.map((sub) => (
+                      <SidebarMenuSubItem key={sub.title}>
+                        <SidebarMenuSubButton
+                          asChild
+                          isActive={pathname === sub.url || pathname.startsWith(sub.url + '/')}
+                        >
+                          <Link to={sub.url}>{sub.title}</Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}

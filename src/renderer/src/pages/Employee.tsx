@@ -75,6 +75,7 @@ export default function App() {
   const employee = employeeQuery.data
   const personal = employee.personal
   const employment = employee.employment
+
   useEffect(() => {
     const offReader = window.api?.onNfcReaderStatus?.((p: any) => setNfcActive(!!p?.active))
     window.api
