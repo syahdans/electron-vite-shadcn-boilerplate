@@ -1,31 +1,42 @@
 import { BrowserWindow, ipcMain } from 'electron'
 import { NFC, KEY_TYPE_A } from 'nfc-pcsc'
 
-/**
- * NFC handler focused on MIFARE Classic (ISO 14443-3)
- * - Reads JSON stored across data blocks starting from sector 1 (block 4)
- * - Supports long names by reading multiple sectors until a full JSON is parsed
- * - Optional write helper to store JSON starting at sector 1
- */
 class ElectronNFCHandlerNew {
   constructor(options = {}) {
-    this.nfc = new NFC()
+    this.nfc = null
     this.reader = null
     this.card = null
     this.active = false
     this.keyA = options.keyA || 'FFFFFFFFFFFF'
     this.startSector = options.startSector || 1 // sector 1 (blocks 4..7)
     this.maxSectors = options.maxSectors || 10 // 10 sectors => up to 480 bytes (3 blocks * 16 * 10)
+
     this.onReader = this.onReader.bind(this)
     this.onError = this.onError.bind(this)
-    this.nfc.on('reader', this.onReader)
-    this.nfc.on('error', this.onError)
 
+    // 🔐 SAFE NFC INITIALIZATION
+    try {
+      this.nfc = new NFC()
+      this.nfc.on('reader', this.onReader)
+      this.nfc.on('error', this.onError)
+      console.log('[NFC] NFC initialized successfully')
+    } catch (err) {
+      // ❗ Important: do NOT throw, just log and continue
+      console.error('[NFC] Failed to initialize NFC. Running without NFC support:', err)
+      this.nfc = null
+    }
+
+    // IPC handlers should exist even if NFC is unavailable
     try {
       ipcMain.handle('nfc:status', async () => {
-        return { active: this.active }
+        return { active: this.active, nfcAvailable: !!this.nfc }
       })
+
       ipcMain.handle('nfc:write', async (_event, payload) => {
+        if (!this.nfc || !this.reader || !this.card) {
+          return { success: false, error: 'NFC not available or no card present' }
+        }
+
         try {
           const res = await this.writeClassicJSON(payload, { startSector: this.startSector })
           return res
@@ -33,11 +44,13 @@ class ElectronNFCHandlerNew {
           return { success: false, error: String(err?.message || err) }
         }
       })
-    } catch {}
+    } catch {
+      // ignore duplicate handler errors in dev HMR
+    }
   }
 
   onError(err) {
-    console.error('NFC error:', err)
+    console.error('[NFC] error:', err)
   }
 
   async onReader(reader) {
@@ -49,7 +62,6 @@ class ElectronNFCHandlerNew {
     } catch {}
 
     reader.on('card', async (card) => {
-      // MIFARE Classic uses ISO 14443-3; ignore others
       console.log(`${reader.reader.name} card detected`, card)
       this.card = card
 
@@ -57,9 +69,14 @@ class ElectronNFCHandlerNew {
         try {
           this.sendToRenderer('nfc-card-tap', { uid: card?.uid, ts: new Date().toISOString() })
         } catch {}
-        // short settle
+
         await new Promise((r) => setTimeout(r, 60))
-        const parsed = await this.readClassicJSON({ startSector: this.startSector, maxSectors: this.maxSectors })
+
+        const parsed = await this.readClassicJSON({
+          startSector: this.startSector,
+          maxSectors: this.maxSectors
+        })
+
         if (parsed) {
           console.log('NFC JSON data:', parsed)
           this.sendToRenderer('nfc-card-data', parsed)
@@ -86,6 +103,8 @@ class ElectronNFCHandlerNew {
     reader.on('end', () => {
       console.log(`${reader.reader.name} device removed`)
       this.active = false
+      this.reader = null
+      this.card = null
       try {
         this.sendToRenderer('nfc-reader-status', { active: false })
       } catch {}
@@ -94,11 +113,13 @@ class ElectronNFCHandlerNew {
 
   sectorToBlocks(sector) {
     const base = sector * 4
-    return [base + 0, base + 1, base + 2] // data blocks only; skip trailer (base+3)
+    return [base + 0, base + 1, base + 2]
   }
 
   async authenticateSector(blockNumber) {
-    // Authenticate using Key A
+    if (!this.reader) {
+      throw new Error('No NFC reader available')
+    }
     await this.reader.authenticate(blockNumber, KEY_TYPE_A, this.keyA)
   }
 
@@ -106,22 +127,25 @@ class ElectronNFCHandlerNew {
     const chunks = []
     for (const block of blockNumbers) {
       await this.authenticateSector(block)
-      const data = await this.reader.read(block, 16, 16) // Classic requires blockSize=16
+      const data = await this.reader.read(block, 16, 16)
       chunks.push(Buffer.from(data))
     }
     return Buffer.concat(chunks)
   }
 
   parseJsonFromBuffer(buf) {
-    const start = buf.indexOf(0x7b) // '{'
-    const end = buf.lastIndexOf(0x7d) // '}'
+    const start = buf.indexOf(0x7b)
+    const end = buf.lastIndexOf(0x7d)
     let str
     if (start !== -1 && end !== -1 && end > start) {
       str = buf.slice(start, end + 1).toString('utf8')
     } else {
       str = buf.toString('utf8')
     }
-    str = str.replace(/\u0000+$/g, '').replace(/^\ufeff/, '').trim()
+    str = str
+      .replace(/\u0000+$/g, '')
+      .replace(/^\ufeff/, '')
+      .trim()
     if (!str) return null
     try {
       return JSON.parse(str)
@@ -140,7 +164,6 @@ class ElectronNFCHandlerNew {
         const data = await this.readBlocks(blocks)
         buffers.push(data)
       } catch (err) {
-        // stop on auth/read error for this sector
         break
       }
       const combined = Buffer.concat(buffers)
@@ -152,13 +175,13 @@ class ElectronNFCHandlerNew {
 
   async writeClassicJSON(jsonString, { startSector = 1 } = {}) {
     if (!this.reader || !this.card) {
-      return { success: false, error: 'No card present' }
+      return { success: false, error: 'No card present or reader not available' }
     }
     const payload = typeof jsonString === 'string' ? jsonString : JSON.stringify(jsonString)
     const buf = Buffer.from(payload, 'utf8')
     const totalBlocks = Math.ceil(buf.length / 16)
-    const sectorsNeeded = Math.ceil(totalBlocks / 3) // 3 data blocks per sector
-    const maxUsableSectors = 16 - startSector // assume 1K card (16 sectors)
+    const sectorsNeeded = Math.ceil(totalBlocks / 3)
+    const maxUsableSectors = 16 - startSector
     if (sectorsNeeded > maxUsableSectors) {
       return { success: false, error: 'Payload too large for card capacity' }
     }
@@ -170,7 +193,6 @@ class ElectronNFCHandlerNew {
     for (let i = 0; i < sectorsNeeded; i++) {
       const sector = startSector + i
       const blocks = this.sectorToBlocks(sector)
-      // authenticate once per sector using the first data block
       await this.authenticateSector(blocks[0])
       for (const block of blocks) {
         const slice = padded.slice(offset, offset + 16)
@@ -199,7 +221,9 @@ class ElectronNFCHandlerNew {
       this.reader?.removeAllListeners()
       this.nfc?.removeAllListeners()
       this.reader?.close?.()
-    } catch {}
+    } catch (err) {
+      console.error('[NFC] Error during shutdown:', err)
+    }
   }
 }
 

@@ -7,6 +7,14 @@ import axios from 'axios'
 // NFC interactions are handled via dynamic import of './nfc-handler.js'
 let nfcHandler: any | null = null
 
+process.on('uncaughtException', (err) => {
+  console.error('[Main] Uncaught exception:', err)
+})
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[Main] Unhandled rejection:', reason)
+})
+
 /**
  * Generate authentication headers based on method and path
  */
