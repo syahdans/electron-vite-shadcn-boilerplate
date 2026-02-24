@@ -17,3 +17,9 @@
 # belum bisa, menunggu dari talenta
 - [ ] Rincian Data Tabungan 
 - [ ] Serah terima inventori (Data Aset)
+
+note:
+- jika sudah dibuka aplikasinya, maka tidak boleh dibuka lagi
+- tombol delete/reset nfc card
+- indikator jaringan
+- ada absensi yang janggal, cek kembali.

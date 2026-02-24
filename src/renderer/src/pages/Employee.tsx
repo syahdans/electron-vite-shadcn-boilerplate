@@ -24,6 +24,7 @@ import {
 } from '@renderer/components/ui/card'
 import {
   EmployeeAttendance as AttendanceTable,
+  EmployeeAssets as AssetsTable,
   EmployeeLoan as LoanTable
 } from '@renderer/components/DataTables'
 
@@ -50,18 +51,28 @@ export default function App() {
     initialData: initialEmployee,
     queryFn: async () => {
       if (!employeeId) return initialEmployee
-      const employee = listEmployee.find(
-        (e) => e.employee_id.toLowerCase() === employeeId.toLowerCase()
-      )
+      // const employee = listEmployee.find(
+      //   (e) => e.employee_id.toLowerCase() === employeeId.toLowerCase()
+      // )https://api.mekari.com/v2/talenta/v3/employee/employment-info?employee_id=PK.S.040
+      const qs = new URLSearchParams({
+        employee_id: employeeId
+      })
+      let path = `${api['employment-info']}?${qs.toString()}`
 
-      if (!employee) {
-        toast.warning('Karyawan tidak ditemukan.')
+      let res = await window.api.requestTalenta('GET', `${path}`)
+      console.log(res);
+
+
+      if (!res.ok) {
+        toast.warning(res.error + ', ' + (res.data ?? ''))
         return initialEmployee
       }
 
-      const path = `${api['employee-by-user-id']}/${employee?.user_id}`
+      let user_id = res.data.employment.id
 
-      const res = await window.api.requestTalenta('GET', `${path}`)
+      path = `${api['employee-by-user-id']}/${user_id}`
+
+      res = await window.api.requestTalenta('GET', `${path}`)
 
       if (!res.ok) {
         toast.error(res.error)
@@ -81,7 +92,7 @@ export default function App() {
     window.api
       ?.getNfcStatus?.()
       .then((s: any) => setNfcActive(!!s?.active))
-      .catch(() => {})
+      .catch(() => { })
     const offTap = window.api?.onNfcCardTap?.(() => {
       setNfcTapped(true)
       setTimeout(() => setNfcTapped(false), 1500)
@@ -239,6 +250,29 @@ export default function App() {
       let loan = { total: res.data.total, loans: res.data.loans ?? [] }
 
       return loan
+    }
+  })
+
+  const assetsQuery = useQuery({
+    queryKey: ['assets', employee?.user_id],
+    enabled: employee?.user_id != null,
+    initialData: [],
+    queryFn: async () => {
+      if (!employee?.user_id) return []
+
+      const qs = new URLSearchParams({
+        user_ids: employee.user_id,
+        limit: '100'
+      })
+      const path = `${api['employee-assets']}?${qs.toString()}`
+      const res = await window.api.requestTalenta('GET', `${path}`)
+
+      if (!res.ok) {
+        toast.error(res.error)
+        return []
+      }
+
+      return res.data.assets ?? []
     }
   })
 
@@ -483,6 +517,17 @@ export default function App() {
         </CardHeader>
         <CardContent>
           <LoanTable data={(loanQuery as any).data.loans ?? []} />
+        </CardContent>
+      </Card>
+
+      {/* Card 4 - Assets/Aset */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Aset</CardTitle>
+          <CardDescription>Rincian Data Aset Karyawan</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AssetsTable data={assetsQuery.data ?? []} />
         </CardContent>
       </Card>
     </div>

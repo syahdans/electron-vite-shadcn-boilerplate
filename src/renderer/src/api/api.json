@@ -4,5 +4,6 @@
   "cuti-tahunan": "/v2/talenta/v2/time-off/policies",
   "employee-by-user-id": "/v2/talenta/v2/employee",
   "bpjs-info": "/v2/talenta/v2/payroll/info",
-  "loans": "/v2/talenta/v2/loans"
+  "loans": "/v2/talenta/v2/loans",
+  "employee-assets": "/v2/talenta/v3/assets"
 }

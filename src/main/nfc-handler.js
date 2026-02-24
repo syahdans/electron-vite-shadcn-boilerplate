@@ -7,6 +7,7 @@ class ElectronNFCHandlerNew {
     this.reader = null
     this.card = null
     this.active = false
+    this.reading = false
     this.keyA = options.keyA || 'FFFFFFFFFFFF'
     this.startSector = options.startSector || 1 // sector 1 (blocks 4..7)
     this.maxSectors = options.maxSectors || 10 // 10 sectors => up to 480 bytes (3 blocks * 16 * 10)
@@ -55,14 +56,16 @@ class ElectronNFCHandlerNew {
 
   async onReader(reader) {
     this.reader = reader
-    console.log(`${reader.reader.name} device attached`)
+    console.log(`${reader.reader?.name || reader.name} device attached`)
     this.active = true
     try {
       this.sendToRenderer('nfc-reader-status', { active: true })
     } catch {}
 
     reader.on('card', async (card) => {
-      console.log(`${reader.reader.name} card detected`, card)
+      if (this.reading) return
+      this.reading = true
+      console.log(`${reader.reader?.name || reader.name} card detected`, card)
       this.card = card
 
       try {
@@ -70,7 +73,7 @@ class ElectronNFCHandlerNew {
           this.sendToRenderer('nfc-card-tap', { uid: card?.uid, ts: new Date().toISOString() })
         } catch {}
 
-        await new Promise((r) => setTimeout(r, 60))
+        await new Promise((r) => setTimeout(r, 180))
 
         const parsed = await this.readClassicJSON({
           startSector: this.startSector,
@@ -85,23 +88,25 @@ class ElectronNFCHandlerNew {
         }
       } catch (err) {
         console.error('NFC read error:', err)
+      } finally {
+        this.reading = false
       }
     })
 
     reader.on('card.off', () => {
       this.card = null
-      console.log(`${reader.reader.name} card removed`)
+      console.log(`${reader.reader?.name || reader.name} card removed`)
       try {
         this.sendToRenderer('nfc-card-removed', { ts: new Date().toISOString() })
       } catch {}
     })
 
     reader.on('error', (err) => {
-      console.error(`${reader.reader.name} error:`, err)
+      console.error(`${reader.reader?.name || reader.name} error:`, err)
     })
 
     reader.on('end', () => {
-      console.log(`${reader.reader.name} device removed`)
+      console.log(`${reader.reader?.name || reader.name} device removed`)
       this.active = false
       this.reader = null
       this.card = null
@@ -120,15 +125,37 @@ class ElectronNFCHandlerNew {
     if (!this.reader) {
       throw new Error('No NFC reader available')
     }
-    await this.reader.authenticate(blockNumber, KEY_TYPE_A, this.keyA)
+    let lastErr
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        await this.reader.authenticate(blockNumber, KEY_TYPE_A, this.keyA)
+        return
+      } catch (err) {
+        lastErr = err
+        await new Promise((r) => setTimeout(r, 40))
+      }
+    }
+    throw lastErr
   }
 
   async readBlocks(blockNumbers) {
     const chunks = []
     for (const block of blockNumbers) {
-      await this.authenticateSector(block)
-      const data = await this.reader.read(block, 16, 16)
-      chunks.push(Buffer.from(data))
+      let success = false
+      let lastErr
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          await this.authenticateSector(block)
+          const data = await this.reader.read(block, 16, 16)
+          chunks.push(Buffer.from(data))
+          success = true
+          break
+        } catch (err) {
+          lastErr = err
+          await new Promise((r) => setTimeout(r, 50))
+        }
+      }
+      if (!success) throw lastErr
     }
     return Buffer.concat(chunks)
   }
