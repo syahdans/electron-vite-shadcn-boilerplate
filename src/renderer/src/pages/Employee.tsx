@@ -30,7 +30,6 @@ import {
 
 import user from '@renderer/assets/images/user.png'
 import initialData from '@renderer/data.json'
-import listEmployee from '@renderer/employee.json'
 import api from '@renderer/api/api.json'
 
 export default function App() {
@@ -60,8 +59,6 @@ export default function App() {
       let path = `${api['employment-info']}?${qs.toString()}`
 
       let res = await window.api.requestTalenta('GET', `${path}`)
-      console.log(res);
-
 
       if (!res.ok) {
         toast.warning(res.error + ', ' + (res.data ?? ''))
@@ -236,7 +233,7 @@ export default function App() {
       if (!employee?.user_id) return initialLoan
 
       const qs = new URLSearchParams({
-        transaction_ids: employee.user_id,
+        user_ids: employee.user_id,
         limit: '100'
       })
       const path = `${api['loans']}?${qs.toString()}`

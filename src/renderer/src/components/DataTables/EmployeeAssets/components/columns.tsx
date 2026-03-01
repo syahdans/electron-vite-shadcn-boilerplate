@@ -6,20 +6,6 @@ import moment from 'moment'
 import { Badge } from '@renderer/components/ui/badge'
 import { DataTableColumnHeader } from './data-table-column-header'
 
-const formatCurrency = (val: number | string | undefined) => {
-    const n = typeof val === 'string' ? Number(val) : val
-    if (Number.isNaN(n as number) || n === undefined || n === null) return '-'
-    try {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            maximumFractionDigits: 0
-        }).format(n as number)
-    } catch {
-        return `${n}`
-    }
-}
-
 export const columns: ColumnDef<any, unknown>[] = [
     {
         accessorKey: 'name',

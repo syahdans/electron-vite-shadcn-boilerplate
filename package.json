@@ -1,6 +1,6 @@
 {
   "name": "hr-wmpl-app",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "HR system to detect NFC card, integrating with Mekari Talenta.",
   "main": "./out/main/index.js",
   "author": "sufilal.syahdan@gmail.com",
